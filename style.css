@@ -150,3 +150,25 @@ tr.wait {
   color:#f87171;
   font-size:12px;
 }
+
+#settingsPanel{
+  position:fixed;
+  inset:0;
+  background:#020617;
+  display:none;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  z-index:9998;
+}
+
+#settingsPanel input{
+  width:220px;
+  text-align:center;
+}
+
+#settingsMsg{
+  font-size:12px;
+  color:#38bdf8;
+}
