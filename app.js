@@ -137,7 +137,7 @@ function render(rows){
     const tpsl = r.pos ? `${r.pos.sl.toFixed(2)} / ${r.pos.tp.toFixed(2)}` : "-";
     const tr=document.createElement("tr");
     tr.innerHTML=`
-      <td>${r.status}</td>
+      <td class="badge-${r.status.toLowerCase()}">${r.status}</td>
       <td>${r.symbol}</td>
       <td>${r.price.toFixed(2)}</td>
       <td>${r.changePct.toFixed(2)}</td>
