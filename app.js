@@ -30,7 +30,9 @@ tr.innerHTML=`
 <td class="change">-</td>
 <td class="status">🫷</td>
 <td><input class="entry" type="number" value="${entry}"></td>
-<td><input class="note" value="${note}"></td>`
+<td class="tp">-</td>
+<td class="sl">-</td>
+<td><input class="note" value="${note}"></td>
 ;
 rows.appendChild(tr);
 }
@@ -131,6 +133,21 @@ if(prev && prev !== current){
 }
 
 row.dataset.prevStatus = current;
+
+// --- TP / SL 自動計算 ---
+const entryInput = row.querySelector(".entry");
+const tpCell = row.querySelector(".tp");
+const slCell = row.querySelector(".sl");
+
+const entryPrice = parseFloat(entryInput.value);
+
+if(entryPrice){
+  tpCell.textContent = (entryPrice * 1.02).toFixed(2);
+  slCell.textContent = (entryPrice * 0.99).toFixed(2);
+}else{
+  tpCell.textContent = "-";
+  slCell.textContent = "-";
+}
 
 });
 
