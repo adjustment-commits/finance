@@ -124,3 +124,29 @@ tr.wait {
   gap:8px;
   margin-bottom:8px;
 }
+
+#lockScreen{
+  position:fixed;
+  inset:0;
+  background:#020617;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  z-index:9999;
+}
+
+#lockScreen input{
+  width:200px;
+  text-align:center;
+}
+
+#lockScreen button{
+  width:120px;
+}
+
+#pwMsg{
+  color:#f87171;
+  font-size:12px;
+}
