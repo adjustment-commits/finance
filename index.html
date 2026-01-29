@@ -72,5 +72,21 @@ if("serviceWorker" in navigator){
   navigator.serviceWorker.register("service-worker.js");
 }
 </script>
+<!-- ⚙ 設定ボタン -->
+<button id="openSettings" style="position:fixed;bottom:10px;right:10px;">⚙</button>
+
+<!-- ⚙ 設定画面 -->
+<div id="settingsPanel">
+  <h3>設定</h3>
+
+  <h4>パスワード変更</h4>
+  <input type="password" id="currentPw" placeholder="現在のPW">
+  <input type="password" id="newPw" placeholder="新しいPW">
+  <button id="changePwBtn">変更</button>
+
+  <div id="settingsMsg"></div>
+
+  <button id="closeSettings">閉じる</button>
+</div>
 </body>
 </html>
