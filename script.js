@@ -177,9 +177,9 @@ function calcStars(d,avg){
    SCANNER
 =========================== */
 
-const scanBtn=document.getElementById("scanBtn");
-
 scanBtn.onclick=async()=>{
+
+  alert("SCAN START");
 
   clearBoard();
 
@@ -189,17 +189,19 @@ scanBtn.onclick=async()=>{
   for(const d of quotes){
 
     const avgVol=await fetchVolumeAverage(d.symbol);
-    d.spike=volumeSpike(d.regularMarketVolume,avgVol);
+    d.spike = avgVol ? volumeSpike(d.regularMarketVolume,avgVol) : 1;
 
-    if(!(d.regularMarketPrice<=300 &&
-         d.regularMarketVolume>=300000 &&
-         d.spike>=1.3)) continue;
+    if(!(d.regularMarketPrice<=500 &&
+         d.regularMarketVolume>=100000)) continue;
 
     const candles=await fetchCandles(d.symbol);
     const avg=candleAverageScore(candles);
     const stars=calcStars(d,avg);
 
-    candidates.push({symbol:d.symbol,score:stars.length});
+    candidates.push({
+      symbol:d.symbol,
+      score:stars.length
+    });
   }
 
   candidates.sort((a,b)=>b.score-a.score);
