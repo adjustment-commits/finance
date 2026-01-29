@@ -33,6 +33,53 @@ pwBtn.onclick = ()=>{
   }
 };
 
+/* ============================
+   設定画面
+============================ */
+
+const openSettingsBtn = document.getElementById("openSettings");
+const closeSettingsBtn = document.getElementById("closeSettings");
+const settingsPanel = document.getElementById("settingsPanel");
+
+const currentPw = document.getElementById("currentPw");
+const newPw = document.getElementById("newPw");
+const changePwBtn = document.getElementById("changePwBtn");
+const settingsMsg = document.getElementById("settingsMsg");
+
+openSettingsBtn.onclick = ()=>{
+  settingsPanel.style.display="flex";
+};
+
+closeSettingsBtn.onclick = ()=>{
+  settingsPanel.style.display="none";
+  currentPw.value="";
+  newPw.value="";
+  settingsMsg.textContent="";
+};
+
+changePwBtn.onclick = ()=>{
+
+  const now = localStorage.getItem(PW_KEY);
+  const cur = currentPw.value.trim();
+  const next = newPw.value.trim();
+
+  if(cur !== now){
+    settingsMsg.textContent="現在のパスワードが違います";
+    return;
+  }
+
+  if(next.length < 4){
+    settingsMsg.textContent="4文字以上にしてください";
+    return;
+  }
+
+  localStorage.setItem(PW_KEY,next);
+  settingsMsg.textContent="パスワードを変更しました";
+
+  currentPw.value="";
+  newPw.value="";
+};
+
 const API_KEY = "9da2719fc4mshd3a78b9ad23f661p120cb6jsn71fe0d28e188";
 const API_HOST = "yahoo-finance-real-time1.p.rapidapi.com";
 
