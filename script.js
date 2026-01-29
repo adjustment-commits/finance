@@ -237,12 +237,12 @@ for(const d of quotes){
      const avgVol = await fetchVolumeAverage(d.symbol);
   d.spike = volumeSpike(d.regularMarketVolume, avgVol);
 
-  if(scanMode==="short"){
-    if(!(d.regularMarketPrice<=300 &&
-     d.regularMarketChangePercent>=2 &&
-     d.spike>=2)) continue;
-  }
-
+ if(scanMode==="short"){
+  if(!(d.regularMarketPrice<=300 &&
+       d.regularMarketChangePercent>=0.8 &&
+       d.spike>=1.3)) continue;
+}
+   
   if(scanMode==="long"){
     if(!(d.regularMarketPrice<=300 &&
          d.regularMarketVolume>=500000)) continue;
@@ -251,7 +251,7 @@ for(const d of quotes){
   const candles = await fetchCandles(d.symbol);
   const avgCandle = candleAverageScore(candles);
 
-  if(scanMode==="short" && avgCandle<1.5) continue;
+  if(scanMode==="short" && avgCandle<1.2) continue;
 
   const stars = calcStars(d,avgCandle);
 
