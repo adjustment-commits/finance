@@ -80,3 +80,25 @@ input{
 #lockScreen input{
   margin:10px;
 }
+#app{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:10px;
+}
+
+/* iPad横以上 */
+@media (min-width: 900px){
+  #app{
+    flex-direction:row;
+    align-items:flex-start;
+  }
+
+  #scannerPanel{
+    width:320px;
+  }
+
+  #boardPanel{
+    flex:1;
+  }
+}
