@@ -67,21 +67,35 @@ const LOW_PRICE_LIST = [
 =========================== */
 
 async function fetchQuotes(symbols){
-  try{
-    const url=`https://${API_HOST}/market/get-quotes?region=JP&symbols=${symbols.join(",")}`;
-    const res=await fetch(url,{
-      headers:{
-        "x-rapidapi-key":API_KEY,
-        "x-rapidapi-host":API_HOST
-      }
-    });
-    if(!res.ok) return [];
-    const json=await res.json();
-    return json.quoteResponse?.result || [];
-  }catch(e){
-    console.error(e);
-    return [];
+
+  const CHUNK = 50;   // 50銘柄ずつ分割
+  let all = [];
+
+  for(let i=0;i<symbols.length;i+=CHUNK){
+
+    const part = symbols.slice(i,i+CHUNK);
+
+    try{
+      const url=`https://${API_HOST}/market/get-quotes?region=JP&symbols=${part.join(",")}`;
+      const res=await fetch(url,{
+        headers:{
+          "x-rapidapi-key":API_KEY,
+          "x-rapidapi-host":API_HOST
+        }
+      });
+
+      if(!res.ok) continue;
+
+      const json=await res.json();
+      const arr = json.quoteResponse?.result || [];
+      all = all.concat(arr);
+
+    }catch(e){
+      console.error(e);
+    }
   }
+
+  return all;
 }
 
 async function fetchVolumeAverage(symbol){
@@ -290,12 +304,24 @@ function saveBoard(){
 }
 
 function clearBoard(){
-  document.querySelectorAll("#rows tr").forEach(tr=>{
-    tr.querySelectorAll("input").forEach(i=>i.value="");
-    tr.querySelectorAll("td:not(:first-child)").forEach(td=>td.textContent="-");
-    tr.querySelector(".status").textContent="🫷";
-    tr.className="";
+
+  document.querySelectorAll("#rows tr").forEach(row=>{
+
+    row.querySelector(".symbol").value="";
+    row.querySelector(".entry").value="";
+    row.querySelector(".note").value="";
+
+    row.querySelector(".name").textContent="-";
+    row.querySelector(".price").textContent="-";
+    row.querySelector(".change").textContent="-";
+    row.querySelector(".status").textContent="🫷";
+    row.querySelector(".tp").textContent="-";
+    row.querySelector(".sl").textContent="-";
+    row.querySelector(".diff").textContent="-";
+
+    row.className="";
   });
+
   saveBoard();
 }
 
@@ -310,11 +336,23 @@ document.getElementById("clearBtn").onclick=()=>{
 =========================== */
 
 document.addEventListener("click",e=>{
+
   if(!e.target.classList.contains("delBtn")) return;
+
   const row=e.target.closest("tr");
-  row.querySelectorAll("input").forEach(i=>i.value="");
-  row.querySelectorAll("td:not(:first-child)").forEach(td=>td.textContent="-");
+
+  row.querySelector(".symbol").value="";
+  row.querySelector(".entry").value="";
+  row.querySelector(".note").value="";
+
+  row.querySelector(".name").textContent="-";
+  row.querySelector(".price").textContent="-";
+  row.querySelector(".change").textContent="-";
   row.querySelector(".status").textContent="🫷";
+  row.querySelector(".tp").textContent="-";
+  row.querySelector(".sl").textContent="-";
+  row.querySelector(".diff").textContent="-";
+
   row.className="";
   saveBoard();
 });
