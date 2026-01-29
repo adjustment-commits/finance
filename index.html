@@ -5,12 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ADJ Trade Board</title>
 <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0f172a">
 </head>
-  
-  <body class="dark">
 
+<body>
+
+<!-- 🔒 ロック画面 -->
 <div id="lockScreen">
   <h2>ADJ Trade Board</h2>
   <input type="password" id="pwInput" placeholder="パスワード">
@@ -24,28 +25,34 @@
 
 <div id="app">
 
-  <!-- 🚀候補スキャナー -->
-  <div id="scannerPanel">
-    <h2>🚀 候補スキャナー</h2>
-    <button id="scanBtn">スキャン</button>
-    <div id="scannerList"></div>
-  </div>
- <div class="modeSwitch">
-  <button id="modeShort" class="modeBtn">短期</button>
-  <button id="modeLong"  class="modeBtn">長期</button>
-  <div id="scanModeLabel">MODE : SHORT</div>
+<!-- 🚀 候補スキャナー -->
+<div id="scannerPanel">
+<h2>🚀 候補スキャナー</h2>
+
+<input type="file" id="patternImage" accept="image/*">
+<img id="previewImage">
+
+<button id="scanBtn">スキャン</button>
+
+<div class="modeSwitch">
+<button id="modeShort" class="modeBtn">短期</button>
+<button id="modeLong"  class="modeBtn">長期</button>
+<div id="scanModeLabel">MODE : SHORT</div>
 </div>
 
-  <!-- 監視ボード -->
-  <div id="boardPanel">
+<div id="scannerList"></div>
+</div>
 
-    <button id="refreshBtn">更新</button>
-    <button id="autoBtn">自動更新</button>
+<!-- 監視ボード -->
+<div id="boardPanel">
 
-    <table>
-      <thead>
-        <tr>
-         <th>銘柄</th>
+<button id="refreshBtn">更新</button>
+<button id="autoBtn">自動更新</button>
+
+<table>
+<thead>
+<tr>
+<th>銘柄</th>
 <th>企業名</th>
 <th>価格</th>
 <th>前日比</th>
@@ -56,42 +63,43 @@
 <th>損益%</th>
 <th>備考</th>
 <th>削除</th>
-        </tr>
-      </thead>
+</tr>
+</thead>
 
-      <tbody id="rows"></tbody>
-    </table>
-
-  </div>
+<tbody id="rows"></tbody>
+</table>
 
 </div>
 
-<script src="script.js"></script>
-<script>
-if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("service-worker.js");
-}
-</script>
-<!-- ⚙ 設定ボタン -->
-<button id="openSettings" style="position:fixed;bottom:10px;right:10px;">⚙</button>
+</div>
 
-<!-- ⚙ 設定画面 -->
+<!-- ⚙設定 -->
+<button id="openSettings">⚙</button>
+
 <div id="settingsPanel">
-  <h3>設定</h3>
+<h3>設定</h3>
 
-  <h4>パスワード変更</h4>
-  <input type="password" id="currentPw" placeholder="現在のPW">
-  <input type="password" id="newPw" placeholder="新しいPW">
-  <button id="changePwBtn">変更</button>
+<h4>パスワード変更</h4>
+<input type="password" id="currentPw">
+<input type="password" id="newPw">
+<button id="changePwBtn">変更</button>
+<div id="settingsMsg"></div>
 
-  <div id="settingsMsg"></div>
-
-  <h4>テーマ</h4>
+<h4>テーマ</h4>
 <button class="themeBtn" data-theme="dark">Dark</button>
 <button class="themeBtn" data-theme="light">Light</button>
 <button class="themeBtn" data-theme="neon">Neon</button>
 
-  <button id="closeSettings">閉じる</button>
+<button id="closeSettings">閉じる</button>
 </div>
+
+<script src="script.js"></script>
+
+<script>
+if("serviceWorker" in navigator){
+ navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+
 </body>
 </html>
