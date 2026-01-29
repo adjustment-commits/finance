@@ -222,3 +222,23 @@ body.neon tr.sl{
   background:rgba(239,68,68,0.35);
   box-shadow:0 0 8px rgba(239,68,68,0.6);
 }
+
+#lockScreen{
+  position:fixed;
+  inset:0;
+  background:#020617;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+
+#settingsPanel{
+  position:fixed;
+  inset:0;
+  background:#020617;
+  display:none;
+  padding:20px;
+  z-index:9000;
+}
