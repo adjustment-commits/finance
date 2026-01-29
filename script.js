@@ -99,33 +99,6 @@ const LOW_PRICE_LIST = [
 "4597.T","4615.T","4627.T","4651.T","4667.T","4689.T"
 ];
 
-
-/* ===========================
-   MODE SWITCH
-=========================== */
-
-let scanMode="short";
-
-const modeLabel = document.getElementById("scanModeLabel");
-const modeShortBtn = document.getElementById("modeShort");
-const modeLongBtn  = document.getElementById("modeLong");
-
-function setMode(mode){
-  scanMode = mode;
-  modeLabel.textContent = "MODE : " + mode.toUpperCase();
-
-  modeShortBtn.classList.remove("active");
-  modeLongBtn.classList.remove("active");
-
-  if(mode==="short") modeShortBtn.classList.add("active");
-  if(mode==="long")  modeLongBtn.classList.add("active");
-}
-
-modeShortBtn.onclick = ()=>setMode("short");
-modeLongBtn.onclick  = ()=>setMode("long");
-setMode("short");
-
-
 /* ===========================
    FETCH QUOTES
 =========================== */
@@ -231,25 +204,17 @@ function calcStars(d,avgCandle){
 
   let s=0;
 
-  if(scanMode==="short"){
-    if(d.regularMarketChangePercent>=2) s++;
-    if(d.regularMarketChangePercent>=5) s++;
-    if(d.regularMarketVolume>=1000000) s++;
-    if(d.regularMarketVolume>=3000000) s++;
-    if(avgCandle>=1.5) s++;
-   if(d.spike>=2) s++;
-if(d.spike>=3) s++;
-  }else{
-    if(d.regularMarketPrice<=300) s++;
-    if(d.regularMarketVolume>=500000) s++;
-    if(d.regularMarketChangePercent>-2 &&
-       d.regularMarketChangePercent<2) s++;
-    if(d.regularMarketChangePercent>0) s++;
-  }
+  if(d.regularMarketPrice<=300) s++;
+  if(d.regularMarketChangePercent>=1) s++;
+  if(d.regularMarketChangePercent>=3) s++;
+  if(d.regularMarketVolume>=500000) s++;
+  if(d.regularMarketVolume>=2000000) s++;
+  if(avgCandle>=1.2) s++;
+  if(d.spike>=1.2) s++;
+  if(d.spike>=2.5) s++;
 
   return "★".repeat(s);
 }
-
 
 /* ===========================
    SCANNER
@@ -270,22 +235,12 @@ clearBoard();
     const avgVol = await fetchVolumeAverage(d.symbol);
     d.spike = volumeSpike(d.regularMarketVolume, avgVol);
 
-    if(scanMode==="short"){
-      if(!(d.regularMarketPrice<=300 &&
-           d.regularMarketChangePercent>=0.8 &&
-           d.spike>=1.3)) continue;
-    }
-
-    if(scanMode==="long"){
-      if(!(d.regularMarketPrice<=300 &&
-           d.regularMarketVolume>=500000)) continue;
-    }
-
+   if(!(d.regularMarketPrice<=300 &&
+     d.regularMarketVolume>=300000 &&
+     d.spike>=1.3)) continue;
+     
     const candles = await fetchCandles(d.symbol);
     const avgCandle = candleAverageScore(candles);
-
-    if(scanMode==="short" && avgCandle<1.2) continue;
-
     const stars = calcStars(d, avgCandle);
 
     candidates.push({
