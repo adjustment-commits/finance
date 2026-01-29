@@ -460,6 +460,15 @@ function clearBoard(){
   saveBoard();
 }
 
+const clearBtn = document.getElementById("clearBtn");
+
+if(clearBtn){
+  clearBtn.onclick = ()=>{
+    if(confirm("ボードを全削除しますか？")){
+      clearBoard();
+    }
+  };
+}
 /* ===========================
    DELETE
 =========================== */
