@@ -1,202 +1,34 @@
+<!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0d1117" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>ADJ Stock Screener</title>
-  <link rel="manifest" href="./manifest.json" />
-  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
-  <link rel="mask-icon" href="./icons/maskable.svg" color="#0d1117" />
-  <!-- iOS用（PNG推奨。未用意の場合はSVGが効かない端末あり） -->
-  <link rel="apple-touch-icon" href="./icons/icon-192.png" />
-  <link rel="stylesheet" href="./styles.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADJ Trade Board</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo">整</div>
-      <div class="title">
-        <div class="name">ADJ Stock Screener</div>
-        <div class="sub">PWA / 監視・判定・ログ（売買はMarket Speed / iSPEEDで）</div>
-      </div>
-    </div>
-<div class="top-actions">
-  <button id="btnRefresh" class="btn primary">更新</button>
-  <button id="btnAuto" class="btn">自動更新: OFF</button>
-  <button id="btnInstall" class="btn" disabled>ホーム追加</button>
+
+<header>
+<h1>ADJ Trade Board</h1>
+<div class="controls">
+<button id="refreshBtn">更新</button>
+<button id="autoBtn">自動更新 OFF</button>
 </div>
-  </header>
-    <main class="layout"><details open>
+</header>
 
- <section class="panel">
-  <div class="panelHeader">
-    <h2>スクリーニング結果</h2>
-    <div class="meta">
-      <div>最終更新: <span id="lastUpdated">--</span></div>
-      <div>取得銘柄: <span id="countTotal">0</span> / 候補: <span id="countCandidates">0</span></div>
-    </div>
-  </div>
+<table>
+<thead>
+<tr>
+<th>銘柄</th>
+<th>現在値</th>
+<th>前日比%</th>
+<th>状態</th>
+<th>備考</th>
+</tr>
+</thead>
+<tbody id="rows"></tbody>
+</table>
 
-  <div class="tableWrap">
-    <table class="table" id="resultTable">
-      <thead>
-        <tr>
-          <th>状態</th>
-          <th>銘柄</th>
-          <th>価格</th>
-          <th>前日比%</th>
-          <th>出来高</th>
-          <th>出来高倍率</th>
-          <th>値幅%</th>
-          <th>EMA</th>
-          <th>ブレイク</th>
-          <th>SL / TP</th>
-        </tr>
-      </thead>
-      <tbody id="resultBody"></tbody>
-    </table>
-  </div>
-
-  <h2>ログ（シグナル）</h2>
-  <div class="logWrap" id="logWrap"></div>
-
-  <div class="footerHint">
-    使い方：PWAで候補抽出 → Market Speedで板/歩み値確認 → iSPEEDで発注。これが一番事故が減る。
-  </div>
-</section>
-
-      
-<summary>⚙ 設定（クリックで開閉）</summary>
-<section class="panel">
-  <div class="grid2">
-    <div class="field">
-      <label>データプロバイダ</label>
-      <select id="providerSelect">
-        <option value="demo">DEMO（疑似データ）</option>
-        <option value="rapidapi_yf">RapidAPI: Yahoo Finance（要キー）</option>
-        <option value="custom_proxy">自前プロキシ（推奨：CORS回避）</option>
-      </select>
-      <div class="hint">
-        ブラウザ単体はCORS/仕様変更の影響を受けやすい。実運用は「自前プロキシ」かRapidAPI推奨。
-      </div>
-    </div>
-
-    <div class="field">
-      <label>更新間隔（秒）</label>
-      <input id="refreshSec" type="number" min="3" max="60" step="1" value="5" />
-      <div class="hint">短すぎるとブロックされやすい。5〜10秒推奨。</div>
-    </div>
-  </div>
-
-  <div id="providerRapidApi" class="providerBox hidden">
-    <div class="grid2">
-      <div class="field">
-        <label>RapidAPI Key</label>
-        <input id="rapidApiKey" type="password" placeholder="x-rapidapi-key" autocomplete="off" />
-        <div class="hint">RapidAPIのYahoo Finance系APIを利用（キー必須）。</div>
-      </div>
-      <div class="field">
-        <label>RapidAPI Host</label>
-        <input id="rapidApiHost" type="text" value="yahoo-finance1.p.rapidapi.com" />
-        <div class="hint">契約したAPIのhostに合わせる。</div>
-      </div>
-    </div>
-  </div>
-
-  <div id="providerProxy" class="providerBox hidden">
-    <div class="field">
-      <label>プロキシURL</label>
-      <input id="proxyUrl" type="text" placeholder="例）https://YOUR_DOMAIN/api/quote?symbols={symbols}" />
-      <div class="hint">
-        {symbols} は「7203.T,8306.T」などをカンマ連結して置換。返却JSONはREADMEの形式に合わせる。
-      </div>
-    </div>
-  </div>
-</section>
-    </details>
-      
-
-  <h2>銘柄リスト</h2>
-
-  <div class="field">
-    <label>監視銘柄（1行1銘柄）</label>
-    <textarea id="symbolsText" rows="6" spellcheck="false">8306.T</textarea>
-
-    <div class="row">
-    <button id="btnSaveSymbols" class="btn">銘柄保存</button>
-    <button id="btnLoadSample" class="btn">低位株サンプル投入</button>
-    <button id="btnClearLogs" class="btn danger">ログ消去</button>
-  </div>
-
-  <h2>スクリーニング条件（候補抽出）</h2>
-
-  <div class="grid3">
-    <div class="field">
-      <label>価格上限（円）</label>
-      <input id="maxPrice" type="number" min="1" max="20000" step="1" value="300" />
-    </div>
-    <div class="field">
-      <label>出来高（最小）</label>
-      <input id="minVolume" type="number" min="0" max="999999999" step="1000" value="1000000" />
-    </div>
-    <div class="field">
-      <label>値幅（最小 %）</label>
-      <input id="minRangePct" type="number" min="0" max="50" step="0.1" value="3.0" />
-    </div>
-  </div>
-
-  <div class="grid3">
-    <div class="field">
-      <label>出来高倍率（現在/基準）</label>
-      <input id="minVolRatio" type="number" min="1" max="50" step="0.1" value="2.0" />
-      <div class="hint">基準は「直近の自前観測平均（本アプリ内）」で近似。</div>
-    </div>
-
-    <div class="field">
-      <label>EMA短期（サンプル数）</label>
-      <input id="emaFast" type="number" min="3" max="60" step="1" value="9" />
-      <div class="hint">本アプリの“取得サンプル列”から計算（足データが無い環境の近似）。</div>
-    </div>
-
-    <div class="field">
-      <label>EMA長期（サンプル数）</label>
-      <input id="emaSlow" type="number" min="5" max="120" step="1" value="21" />
-    </div>
-  </div>
-
-  <h2>判定条件（BUY / TP / SL）</h2>
-
-  <div class="grid3">
-    <div class="field">
-      <label>STOP（%）</label>
-      <input id="stopPct" type="number" min="0.1" max="20" step="0.1" value="1.0" />
-      <div class="hint">BUY成立時に“仮想ポジション”を作り、エントリー価格×(1-STOP)でSL。</div>
-    </div>
-    <div class="field">
-      <label>TAKE（%）</label>
-      <input id="takePct" type="number" min="0.1" max="50" step="0.1" value="1.5" />
-      <div class="hint">エントリー価格×(1+TAKE)でTP。</div>
-    </div>
-    <div class="field">
-      <label>ブレイク判定（%）</label>
-      <input id="breakoutPct" type="number" min="0" max="10" step="0.05" value="0.20" />
-      <div class="hint">直近高値×(1+%/100) を上抜けしたらブレイク扱い。</div>
-    </div>
-  </div>
-
-  <div class="row">
-    <button id="btnSaveSettings" class="btn primary">設定保存</button>
-    <span id="status" class="status">準備OK</span>
-  </div>
-
-  <div class="note">
-    重要：このアプリは「状態判定＋候補抽出」。発注はMarket Speed / iSPEEDで最終判断して行う前提。
-  </div>
-</section>
-
-    </main>
-        <script src="./app.js"></script>
-    </body>
-    </html>
+<script src="app.js"></script>
+</body>
+</html>
