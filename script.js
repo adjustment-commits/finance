@@ -74,9 +74,8 @@ const LOW_PRICE_LIST = [
 "7527.T","7615.T","7707.T","7777.T","7836.T","8013.T",
 "8107.T","8202.T","8306.T","8411.T","8473.T","8515.T",
 "8585.T","8746.T","8789.T","8894.T","8918.T","8946.T",
-"9424.T","9479.T","9501.T","9878.T","9984.T",
-
-"1515.T","1670.T","1678.T","1698.T","1762.T","1783.T",
+"9424.T","9479.T","9501.T","9878.T","9984.T","1515.T",
+"1670.T","1678.T","1698.T","1762.T","1783.T",
 "1821.T","1824.T","1888.T","1893.T","1934.T","2001.T",
 "2120.T","2154.T","2175.T","2196.T","2206.T","2323.T",
 "2379.T","2404.T","2427.T","2440.T","2468.T","2497.T",
@@ -143,15 +142,43 @@ setMode("short");
    FETCH QUOTES
 =========================== */
 
+const QUOTE_CACHE_KEY = "adj_trade_last_quotes";
+
 async function fetchQuotes(symbols){
-const url=`https://${API_HOST}/market/get-quotes?region=JP&symbols=${symbols.join(",")}`;
-const res=await fetch(url,{
-headers:{
-"x-rapidapi-key":API_KEY,
-"x-rapidapi-host":API_HOST
-}});
-const json=await res.json();
-return json.quoteResponse?.result||[];
+
+  try{
+
+    const url = `https://${API_HOST}/market/get-quotes?region=JP&symbols=${symbols.join(",")}`;
+
+    const res = await fetch(url,{
+      headers:{
+        "x-rapidapi-key":API_KEY,
+        "x-rapidapi-host":API_HOST
+      }
+    });
+
+    const json = await res.json();
+    const result = json.quoteResponse?.result || [];
+
+    // ✅ 取得できたら保存
+    localStorage.setItem(
+      QUOTE_CACHE_KEY,
+      JSON.stringify(result)
+    );
+
+    return result;
+
+  }catch(e){
+
+    console.warn("API失敗 → キャッシュ使用");
+
+    // ✅ 失敗したら保存済みを返す
+    return JSON.parse(
+      localStorage.getItem(QUOTE_CACHE_KEY) || "[]"
+    );
+
+  }
+
 }
 
 /* ===========================
@@ -288,10 +315,10 @@ scanBtn.onclick = async ()=>{
     d.spike = volumeSpike(d.regularMarketVolume, avgVol);
 
     if(scanMode==="short"){
-      if(!(d.regularMarketPrice<=400 &&
-           d.regularMarketChangePercent>=0.2 &&
-           d.spike>=1.0)) continue;
-    }
+  if(!(d.regularMarketPrice<=500 &&
+       d.regularMarketChangePercent>=0.1 &&
+       d.spike>=0.8)) continue;
+}
 
     if(scanMode==="long"){
       if(!(d.regularMarketPrice<=300 &&
@@ -335,10 +362,18 @@ scanBtn.onclick = async ()=>{
   result.forEach(c=>{
     insertSymbolToBoard(c.symbol);
   });
+   localStorage.setItem(
+  LAST_SCAN_KEY,
+  JSON.stringify(result.map(r=>r.symbol))
+);
 
   refresh();
 
-  scanStatus.textContent = "完了";
+ if(result.length===0){
+  scanStatus.textContent="条件に合致なし";
+}else{
+  scanStatus.textContent="完了";
+}
   scanBtn.disabled = false;
 };
 
@@ -347,6 +382,7 @@ scanBtn.onclick = async ()=>{
 =========================== */
 
 const STORAGE_KEY="adj_trade_board";
+const LAST_SCAN_KEY = "adj_last_scan_symbols";
 const rows=document.getElementById("rows");
 
 function buildRows(){
@@ -373,6 +409,13 @@ rows.appendChild(tr);
 }
 buildRows();
 
+// 前回スキャン銘柄を復元
+const lastScan = JSON.parse(localStorage.getItem(LAST_SCAN_KEY) || "[]");
+lastScan.forEach(sym => insertSymbolToBoard(sym));
+
+// 起動時に価格更新
+refresh();
+
 /* ===========================
    REFRESH BUTTON
 =========================== */
@@ -383,7 +426,7 @@ async function refresh(){
 
   const inputs=[...document.querySelectorAll(".symbol")];
   const symbols=inputs.map(i=>i.value.trim()).filter(v=>v!=="");
-  if(symbols.length===0) return;
+   if(!Array.isArray(data)) return;
 
   const data = await fetchQuotes(symbols);
 
@@ -449,7 +492,7 @@ refreshBtn.onclick = refresh;
 function insertSymbolToBoard(symbol){
 
 const inputs=[...document.querySelectorAll(".symbol")];
-if(inputs.some(i=>i.value===symbol)) return;
+if(inputs.some(i=>i.value.toUpperCase()===symbol.toUpperCase())) return;
 
 const empty=inputs.find(i=>i.value==="");
 if(empty) empty.value=symbol;
