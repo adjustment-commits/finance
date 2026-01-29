@@ -303,6 +303,74 @@ rows.appendChild(tr);
 }
 buildRows();
 
+/* ===========================
+   REFRESH BUTTON
+=========================== */
+
+const refreshBtn = document.getElementById("refreshBtn");
+
+async function refresh(){
+
+  const inputs=[...document.querySelectorAll(".symbol")];
+  const symbols=inputs.map(i=>i.value.trim()).filter(v=>v!=="");
+  if(symbols.length===0) return;
+
+  const data = await fetchQuotes(symbols);
+
+  inputs.forEach(input=>{
+    const row=input.closest("tr");
+    const d=data.find(x=>x.symbol===input.value.trim().toUpperCase());
+    if(!d) return;
+
+    row.querySelector(".price").textContent =
+      d.regularMarketPrice ? d.regularMarketPrice.toFixed(2) : "-";
+
+    row.querySelector(".change").textContent =
+      d.regularMarketChangePercent !== undefined
+        ? d.regularMarketChangePercent.toFixed(2)+"%"
+        : "-";
+
+    row.querySelector(".name").textContent =
+      d.shortName || "-";
+
+    const pct=d.regularMarketChangePercent;
+    row.className="";
+
+    if(pct>=2){
+      row.classList.add("buy");
+      row.querySelector(".status").textContent="🚀";
+    }
+    else if(pct<=-2){
+      row.classList.add("sl");
+      row.querySelector(".status").textContent="🔥";
+    }
+    else if(pct>=1){
+      row.classList.add("tp");
+      row.querySelector(".status").textContent="✨";
+    }
+    else{
+      row.classList.add("wait");
+      row.querySelector(".status").textContent="🫷";
+    }
+
+    const entry=parseFloat(row.querySelector(".entry").value);
+
+    if(entry){
+      row.querySelector(".tp").textContent=(entry*1.02).toFixed(2);
+      row.querySelector(".sl").textContent=(entry*0.99).toFixed(2);
+      row.querySelector(".diff").textContent=
+        (((d.regularMarketPrice-entry)/entry)*100).toFixed(1)+"%";
+    }else{
+      row.querySelector(".tp").textContent="-";
+      row.querySelector(".sl").textContent="-";
+      row.querySelector(".diff").textContent="-";
+    }
+  });
+
+  saveBoard();
+}
+
+refreshBtn.onclick = refresh;
 
 /* ===========================
    INSERT
