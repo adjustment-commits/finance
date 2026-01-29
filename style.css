@@ -143,3 +143,26 @@ tbody td::before{
   color:#94a3b8;
 }
 }
+/* ===========================
+   LOCK SCREEN SIZE FIX
+=========================== */
+
+#lockScreen input{
+  width: 260px;
+  font-size: 18px;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+#lockScreen button{
+  width: 260px;
+  font-size: 18px;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+#lockScreen p,
+#lockScreen span{
+  font-size: 16px;
+  margin-bottom: 12px;
+}
