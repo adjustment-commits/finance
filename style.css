@@ -72,9 +72,6 @@ input{
   z-index:999;
 }
 
-#lockScreen input{
-  margin:10px;
-}
 #app{
   display:flex;
   flex-direction:column;
@@ -148,10 +145,11 @@ tbody td::before{
 =========================== */
 
 #lockScreen input{
-  width: 260px;
-  font-size: 18px;
-  padding: 12px;
-  border-radius: 8px;
+  width:260px;
+  font-size:18px;
+  padding:12px;
+  border-radius:8px;
+  margin:10px;
 }
 
 #lockScreen button{
