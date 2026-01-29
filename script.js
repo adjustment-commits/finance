@@ -109,6 +109,35 @@ const json=await res.json();
 return json.quoteResponse?.result||[];
 }
 
+/* ===========================
+   FETCH VOLUME AVERAGE
+=========================== */
+
+async function fetchVolumeAverage(symbol){
+
+  const url = `https://${API_HOST}/stock/v2/get-summary?symbol=${symbol}`;
+
+  const res = await fetch(url,{
+    headers:{
+      "x-rapidapi-key":API_KEY,
+      "x-rapidapi-host":API_HOST
+    }
+  });
+
+  const json = await res.json();
+
+  return json.summaryDetail?.averageDailyVolume10Day?.raw || null;
+}
+
+
+/* ===========================
+   VOLUME SPIKE
+=========================== */
+
+function volumeSpike(today, avg){
+  if(!today || !avg) return 0;
+  return today / avg;
+}
 
 /* ===========================
    FETCH 3 DAILY CANDLES
@@ -176,6 +205,8 @@ function calcStars(d,avgCandle){
     if(d.regularMarketVolume>=1000000) s++;
     if(d.regularMarketVolume>=3000000) s++;
     if(avgCandle>=1.5) s++;
+   if(d.spike>=2) s++;
+if(d.spike>=3) s++;
   }else{
     if(d.regularMarketPrice<=300) s++;
     if(d.regularMarketVolume>=500000) s++;
@@ -203,11 +234,13 @@ const quotes = await fetchQuotes(LOW_PRICE_LIST);
 scannerList.innerHTML="";
 
 for(const d of quotes){
+     const avgVol = await fetchVolumeAverage(d.symbol);
+  d.spike = volumeSpike(d.regularMarketVolume, avgVol);
 
   if(scanMode==="short"){
     if(!(d.regularMarketPrice<=300 &&
-         d.regularMarketChangePercent>=2 &&
-         d.regularMarketVolume>=1000000)) continue;
+     d.regularMarketChangePercent>=2 &&
+     d.spike>=2)) continue;
   }
 
   if(scanMode==="long"){
@@ -229,6 +262,7 @@ for(const d of quotes){
     <div>${d.symbol}</div>
     <div>${d.shortName||""}</div>
     <div>🚀 ${stars}</div>
+<div>Vol x${d.spike ? d.spike.toFixed(1) : "-"}</div>
   `;
 
   div.onclick=()=>insertSymbolToBoard(d.symbol);
