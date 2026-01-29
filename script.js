@@ -1,3 +1,7 @@
+/*********************************
+ ADJ TRADE BOARD - FULL JS
+*********************************/
+
 /* ===========================
    PASSWORD LOCK
 =========================== */
@@ -15,13 +19,11 @@ const pwInput = document.getElementById("pwInput");
 const pwBtn = document.getElementById("pwBtn");
 const pwMsg = document.getElementById("pwMsg");
 
-(function(){
-  if(!localStorage.getItem(PW_KEY)){
-    pwMsg.textContent="新しいパスワードを設定してください";
-  }else{
-    pwMsg.textContent="パスワードを入力してください";
-  }
-})();
+if(!localStorage.getItem(PW_KEY)){
+  pwMsg.textContent="新しいパスワードを設定してください";
+}else{
+  pwMsg.textContent="パスワードを入力してください";
+}
 
 pwBtn.onclick = ()=>{
   const input = pwInput.value.trim();
@@ -33,8 +35,8 @@ pwBtn.onclick = ()=>{
 
   if(input === localStorage.getItem(PW_KEY)){
     lockScreen.style.display="none";
-    app.style.display="flex";
-    headerEl.style.display="flex";
+    app.style.display="block";
+    headerEl.style.display="block";
   }else{
     pwMsg.textContent="パスワードが違います";
   }
@@ -54,160 +56,50 @@ const API_HOST = "yahoo-finance-real-time1.p.rapidapi.com";
 const LOW_PRICE_LIST = [
 "1301.T","1332.T","1377.T","1419.T","1514.T","1518.T",
 "1711.T","1757.T","1840.T","1860.T","1921.T","1963.T",
-"2134.T","2148.T","2162.T","2170.T","2191.T","2315.T",
-"2330.T","2345.T","2370.T","2395.T","2438.T","2484.T",
-"2491.T","2687.T","2929.T","3031.T","3070.T","3133.T",
-"3189.T","3205.T","3315.T","3323.T","3356.T","3521.T",
-"3624.T","3664.T","3686.T","3726.T","3823.T","3856.T",
-"3907.T","3911.T","3923.T","3962.T","3992.T","4026.T"
+"2134.T","2315.T","2330.T","2345.T","2370.T",
+"2687.T","2929.T","3031.T","3070.T","3315.T",
+"3521.T","3664.T","3823.T","3907.T","4180.T",
+"4594.T","4764.T","5017.T","5955.T","6298.T",
+"6335.T","6731.T","6993.T","7527.T","7615.T",
+"7777.T","8013.T","8202.T","8411.T","8746.T",
+"8894.T","9424.T","9878.T"
 ];
 
 /* ===========================
-   SAFE FETCH
+   API FETCH
 =========================== */
 
 async function fetchQuotes(symbols){
-
-  const CHUNK = 50;   // 50銘柄ずつ分割
-  let all = [];
-
-  for(let i=0;i<symbols.length;i+=CHUNK){
-
-    const part = symbols.slice(i,i+CHUNK);
-
-    try{
-      const url=`https://${API_HOST}/market/get-quotes?region=JP&symbols=${part.join(",")}`;
-      const res=await fetch(url,{
-        headers:{
-          "x-rapidapi-key":API_KEY,
-          "x-rapidapi-host":API_HOST
-        }
-      });
-
-      if(!res.ok) continue;
-
-      const json=await res.json();
-      const arr = json.quoteResponse?.result || [];
-      all = all.concat(arr);
-
-    }catch(e){
-      console.error(e);
+  const url=`https://${API_HOST}/market/get-quotes?region=JP&symbols=${symbols.join(",")}`;
+  const res=await fetch(url,{
+    headers:{
+      "x-rapidapi-key":API_KEY,
+      "x-rapidapi-host":API_HOST
     }
-  }
-
-  return all;
-}
-
-async function fetchVolumeAverage(symbol){
-  try{
-    const url=`https://${API_HOST}/stock/v2/get-summary?symbol=${symbol}`;
-    const res=await fetch(url,{
-      headers:{
-        "x-rapidapi-key":API_KEY,
-        "x-rapidapi-host":API_HOST
-      }
-    });
-    if(!res.ok) return null;
-    const json=await res.json();
-    return json.summaryDetail?.averageDailyVolume10Day?.raw || null;
-  }catch(e){
-    return null;
-  }
-}
-
-async function fetchCandles(symbol){
-  try{
-    const url=`https://${API_HOST}/stock/v3/get-historical-data?symbol=${symbol}&region=JP`;
-    const res=await fetch(url,{
-      headers:{
-        "x-rapidapi-key":API_KEY,
-        "x-rapidapi-host":API_HOST
-      }
-    });
-    if(!res.ok) return [];
-    const json=await res.json();
-    return json.prices?.slice(0,3) || [];
-  }catch(e){
-    return [];
-  }
-}
-
-/* ===========================
-   LOGIC
-=========================== */
-
-function volumeSpike(today, avg){
-  if(!today || !avg) return 0;
-  return today/avg;
-}
-
-function candleScore(c){
-  if(!c.open||!c.high||!c.low||!c.close) return 0;
-  const body=Math.abs(c.close-c.open);
-  const range=c.high-c.low;
-  const lower=Math.min(c.open,c.close)-c.low;
-  let s=0;
-  if(c.close>c.open) s++;
-  if(body/range>=0.3) s++;
-  if(lower/range>=0.25) s++;
-  return s;
-}
-
-function candleAverageScore(cs){
-  if(cs.length===0) return 0;
-  let t=0;
-  cs.forEach(c=>t+=candleScore(c));
-  return t/cs.length;
-}
-
-function calcStars(d,avg){
-  let s=0;
-  if(d.regularMarketPrice<=300) s++;
-  if(d.regularMarketChangePercent>=1) s++;
-  if(d.regularMarketChangePercent>=3) s++;
-  if(d.regularMarketVolume>=500000) s++;
-  if(d.regularMarketVolume>=2000000) s++;
-  if(avg>=1.2) s++;
-  if(d.spike>=1.2) s++;
-  if(d.spike>=2.5) s++;
-  return "★".repeat(s);
+  });
+  const json=await res.json();
+  return json.quoteResponse?.result || [];
 }
 
 /* ===========================
    SCANNER
 =========================== */
 
-scanBtn.onclick=async()=>{
+const scanBtn = document.getElementById("scanBtn");
 
-  alert("SCAN START");
+scanBtn.onclick = async ()=>{
 
   clearBoard();
 
-  const quotes=await fetchQuotes(LOW_PRICE_LIST);
-  const candidates=[];
+  const data = await fetchQuotes(LOW_PRICE_LIST);
 
-  for(const d of quotes){
+  const result = data.filter(d=>{
+    return d.regularMarketPrice <= 300 &&
+           d.regularMarketVolume >= 300000;
+  }).slice(0,20);
 
-    const avgVol=await fetchVolumeAverage(d.symbol);
-    d.spike = avgVol ? volumeSpike(d.regularMarketVolume,avgVol) : 1;
-
-    if(!(d.regularMarketPrice<=500 &&
-         d.regularMarketVolume>=100000)) continue;
-
-    const candles=await fetchCandles(d.symbol);
-    const avg=candleAverageScore(candles);
-    const stars=calcStars(d,avg);
-
-    candidates.push({
-      symbol:d.symbol,
-      score:stars.length
-    });
-  }
-
-  candidates.sort((a,b)=>b.score-a.score);
-
-  candidates.slice(0,20).forEach(c=>{
-    insertSymbolToBoard(c.symbol);
+  result.forEach(d=>{
+    insertSymbolToBoard(d.symbol);
   });
 
   refresh();
@@ -231,11 +123,11 @@ function buildRows(){
 <td class="price">-</td>
 <td class="change">-</td>
 <td class="status">🫷</td>
-<td><input class="entry" value="${saved[i]?.entry||""}"></td>
+<td><input class="entry"></td>
 <td class="tp">-</td>
 <td class="sl">-</td>
 <td class="diff">-</td>
-<td><input class="note" value="${saved[i]?.note||""}"></td>
+<td><input class="note"></td>
 <td><button class="delBtn">✖</button></td>`;
     rows.appendChild(tr);
   }
@@ -267,16 +159,17 @@ async function refresh(){
 
     const pct=d.regularMarketChangePercent;
     row.className="";
-    if(pct>=2){row.classList.add("buy");row.querySelector(".status").textContent="🚀";}
-    else if(pct<=-2){row.classList.add("sl");row.querySelector(".status").textContent="🔥";}
-    else if(pct>=1){row.classList.add("tp");row.querySelector(".status").textContent="✨";}
-    else{row.classList.add("wait");row.querySelector(".status").textContent="🫷";}
+    if(pct>=2){row.querySelector(".status").textContent="🚀";}
+    else if(pct<=-2){row.querySelector(".status").textContent="🔥";}
+    else if(pct>=1){row.querySelector(".status").textContent="✨";}
+    else{row.querySelector(".status").textContent="🫷";}
 
     const entry=parseFloat(row.querySelector(".entry").value);
     if(entry){
       row.querySelector(".tp").textContent=(entry*1.02).toFixed(2);
       row.querySelector(".sl").textContent=(entry*0.99).toFixed(2);
-      row.querySelector(".diff").textContent=(((d.regularMarketPrice-entry)/entry)*100).toFixed(1)+"%";
+      row.querySelector(".diff").textContent=
+        (((d.regularMarketPrice-entry)/entry)*100).toFixed(1)+"%";
     }
   });
 
@@ -306,24 +199,12 @@ function saveBoard(){
 }
 
 function clearBoard(){
-
   document.querySelectorAll("#rows tr").forEach(row=>{
-
-    row.querySelector(".symbol").value="";
-    row.querySelector(".entry").value="";
-    row.querySelector(".note").value="";
-
-    row.querySelector(".name").textContent="-";
-    row.querySelector(".price").textContent="-";
-    row.querySelector(".change").textContent="-";
+    row.querySelectorAll("input").forEach(i=>i.value="");
+    row.querySelectorAll("td").forEach(td=>td.textContent="-");
     row.querySelector(".status").textContent="🫷";
-    row.querySelector(".tp").textContent="-";
-    row.querySelector(".sl").textContent="-";
-    row.querySelector(".diff").textContent="-";
-
     row.className="";
   });
-
   saveBoard();
 }
 
@@ -338,23 +219,11 @@ document.getElementById("clearBtn").onclick=()=>{
 =========================== */
 
 document.addEventListener("click",e=>{
-
   if(!e.target.classList.contains("delBtn")) return;
-
   const row=e.target.closest("tr");
-
-  row.querySelector(".symbol").value="";
-  row.querySelector(".entry").value="";
-  row.querySelector(".note").value="";
-
-  row.querySelector(".name").textContent="-";
-  row.querySelector(".price").textContent="-";
-  row.querySelector(".change").textContent="-";
+  row.querySelectorAll("input").forEach(i=>i.value="");
+  row.querySelectorAll("td").forEach(td=>td.textContent="-");
   row.querySelector(".status").textContent="🫷";
-  row.querySelector(".tp").textContent="-";
-  row.querySelector(".sl").textContent="-";
-  row.querySelector(".diff").textContent="-";
-
   row.className="";
   saveBoard();
 });
