@@ -281,3 +281,9 @@ line-height:1.45;
 .layout{ grid-template-columns: 1fr; }
 .table{ min-width: 980px; }
 }
+
+.badge-buy{color:#22c55e;font-weight:bold;}
+.badge-open{color:#38bdf8;font-weight:bold;}
+.badge-tp{color:#a78bfa;font-weight:bold;}
+.badge-sl{color:#f87171;font-weight:bold;}
+.badge-watch{color:#facc15;font-weight:bold;}
