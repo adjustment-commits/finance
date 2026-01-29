@@ -29,10 +29,6 @@ pwBtn.onclick = ()=>{
 
   if(!localStorage.getItem(PW_KEY)){
     localStorage.setItem(PW_KEY,input);
-    lockScreen.style.display="none";
-    app.style.display="flex";
-    headerEl.style.display="flex";
-    return;
   }
 
   if(input === localStorage.getItem(PW_KEY)){
@@ -44,14 +40,12 @@ pwBtn.onclick = ()=>{
   }
 };
 
-
 /* ===========================
    API SETTINGS
 =========================== */
 
 const API_KEY = "9da2719fc4mshd3a78b9ad23f661p120cb6jsn71fe0d28e188";
 const API_HOST = "yahoo-finance-real-time1.p.rapidapi.com";
-
 
 /* ===========================
    LOW PRICE LIST
@@ -65,154 +59,103 @@ const LOW_PRICE_LIST = [
 "2491.T","2687.T","2929.T","3031.T","3070.T","3133.T",
 "3189.T","3205.T","3315.T","3323.T","3356.T","3521.T",
 "3624.T","3664.T","3686.T","3726.T","3823.T","3856.T",
-"3907.T","3911.T","3923.T","3962.T","3992.T","4026.T",
-"4180.T","4240.T","4344.T","4385.T","4594.T","4764.T",
-"4889.T","4996.T","5017.T","5103.T","5216.T","5721.T",
-"5955.T","6072.T","6085.T","6178.T","6184.T","6298.T",
-"6335.T","6494.T","6532.T","6731.T","6835.T","6905.T",
-"6993.T","7044.T","7068.T","7161.T","7187.T","7212.T",
-"7527.T","7615.T","7707.T","7777.T","7836.T","8013.T",
-"8107.T","8202.T","8306.T","8411.T","8473.T","8515.T",
-"8585.T","8746.T","8789.T","8894.T","8918.T","8946.T",
-"9424.T","9479.T","9501.T","9878.T","9984.T",
-
-"1515.T","1670.T","1678.T","1698.T","1762.T","1783.T",
-"1821.T","1824.T","1888.T","1893.T","1934.T","2001.T",
-"2120.T","2154.T","2175.T","2196.T","2206.T","2323.T",
-"2379.T","2404.T","2427.T","2440.T","2468.T","2497.T",
-"2656.T","2694.T","2715.T","2721.T","2733.T","2768.T",
-"2810.T","2871.T","2892.T","2914.T","2930.T","2975.T",
-"3003.T","3046.T","3079.T","3092.T","3109.T","3154.T",
-"3179.T","3197.T","3222.T","3231.T","3242.T","3252.T",
-"3288.T","3291.T","3308.T","3333.T","3341.T","3371.T",
-"3390.T","3393.T","3407.T","3436.T","3443.T","3452.T",
-"3475.T","3524.T","3536.T","3544.T","3580.T","3608.T",
-"3612.T","3630.T","3656.T","3673.T","3679.T","3697.T",
-"3710.T","3738.T","3750.T","3768.T","3778.T","3791.T",
-"3807.T","3815.T","3834.T","3845.T","3878.T","3891.T",
-"3928.T","3941.T","3964.T","3981.T","3998.T","4005.T",
-"4023.T","4042.T","4051.T","4095.T","4109.T","4114.T",
-"4176.T","4185.T","4231.T","4246.T","4288.T","4293.T",
-"4317.T","4321.T","4334.T","4346.T","4362.T","4382.T",
-"4393.T","4406.T","4425.T","4436.T","4464.T","4477.T",
-"4493.T","4519.T","4531.T","4552.T","4571.T","4583.T",
-"4597.T","4615.T","4627.T","4651.T","4667.T","4689.T"
+"3907.T","3911.T","3923.T","3962.T","3992.T","4026.T"
 ];
 
 /* ===========================
-   FETCH QUOTES
+   SAFE FETCH
 =========================== */
 
 async function fetchQuotes(symbols){
-const url=`https://${API_HOST}/market/get-quotes?region=JP&symbols=${symbols.join(",")}`;
-const res=await fetch(url,{
-headers:{
-"x-rapidapi-key":API_KEY,
-"x-rapidapi-host":API_HOST
-}});
-const json=await res.json();
-return json.quoteResponse?.result||[];
+  try{
+    const url=`https://${API_HOST}/market/get-quotes?region=JP&symbols=${symbols.join(",")}`;
+    const res=await fetch(url,{
+      headers:{
+        "x-rapidapi-key":API_KEY,
+        "x-rapidapi-host":API_HOST
+      }
+    });
+    if(!res.ok) return [];
+    const json=await res.json();
+    return json.quoteResponse?.result || [];
+  }catch(e){
+    console.error(e);
+    return [];
+  }
 }
-
-/* ===========================
-   FETCH VOLUME AVERAGE
-=========================== */
 
 async function fetchVolumeAverage(symbol){
-
-  const url = `https://${API_HOST}/stock/v2/get-summary?symbol=${symbol}`;
-
-  const res = await fetch(url,{
-    headers:{
-      "x-rapidapi-key":API_KEY,
-      "x-rapidapi-host":API_HOST
-    }
-  });
-
-  const json = await res.json();
-
-  return json.summaryDetail?.averageDailyVolume10Day?.raw || null;
+  try{
+    const url=`https://${API_HOST}/stock/v2/get-summary?symbol=${symbol}`;
+    const res=await fetch(url,{
+      headers:{
+        "x-rapidapi-key":API_KEY,
+        "x-rapidapi-host":API_HOST
+      }
+    });
+    if(!res.ok) return null;
+    const json=await res.json();
+    return json.summaryDetail?.averageDailyVolume10Day?.raw || null;
+  }catch(e){
+    return null;
+  }
 }
 
+async function fetchCandles(symbol){
+  try{
+    const url=`https://${API_HOST}/stock/v3/get-historical-data?symbol=${symbol}&region=JP`;
+    const res=await fetch(url,{
+      headers:{
+        "x-rapidapi-key":API_KEY,
+        "x-rapidapi-host":API_HOST
+      }
+    });
+    if(!res.ok) return [];
+    const json=await res.json();
+    return json.prices?.slice(0,3) || [];
+  }catch(e){
+    return [];
+  }
+}
 
 /* ===========================
-   VOLUME SPIKE
+   LOGIC
 =========================== */
 
 function volumeSpike(today, avg){
   if(!today || !avg) return 0;
-  return today / avg;
+  return today/avg;
 }
-
-/* ===========================
-   FETCH 3 DAILY CANDLES
-=========================== */
-
-async function fetchCandles(symbol){
-
-const url = `https://${API_HOST}/stock/v3/get-historical-data?symbol=${symbol}&region=JP`;
-
-const res = await fetch(url,{
-headers:{
-"x-rapidapi-key":API_KEY,
-"x-rapidapi-host":API_HOST
-}});
-
-const json = await res.json();
-return json.prices?.slice(0,3) || [];
-}
-
-
-/* ===========================
-   CANDLE SCORE
-=========================== */
 
 function candleScore(c){
-
-  const open=c.open;
-  const high=c.high;
-  const low=c.low;
-  const close=c.close;
-
-  if(!open||!high||!low||!close) return 0;
-
-  const body=Math.abs(close-open);
-  const range=high-low;
-  const lowerWick=Math.min(open,close)-low;
-
+  if(!c.open||!c.high||!c.low||!c.close) return 0;
+  const body=Math.abs(c.close-c.open);
+  const range=c.high-c.low;
+  const lower=Math.min(c.open,c.close)-c.low;
   let s=0;
-  if(close>open) s++;
+  if(c.close>c.open) s++;
   if(body/range>=0.3) s++;
-  if(lowerWick/range>=0.25) s++;
-
+  if(lower/range>=0.25) s++;
   return s;
 }
 
-function candleAverageScore(candles){
-  if(candles.length===0) return 0;
-  let total=0;
-  candles.forEach(c=> total+=candleScore(c));
-  return total / candles.length;
+function candleAverageScore(cs){
+  if(cs.length===0) return 0;
+  let t=0;
+  cs.forEach(c=>t+=candleScore(c));
+  return t/cs.length;
 }
 
-
-/* ===========================
-   STAR SCORE
-=========================== */
-
-function calcStars(d,avgCandle){
-
+function calcStars(d,avg){
   let s=0;
-
   if(d.regularMarketPrice<=300) s++;
   if(d.regularMarketChangePercent>=1) s++;
   if(d.regularMarketChangePercent>=3) s++;
   if(d.regularMarketVolume>=500000) s++;
   if(d.regularMarketVolume>=2000000) s++;
-  if(avgCandle>=1.2) s++;
+  if(avg>=1.2) s++;
   if(d.spike>=1.2) s++;
   if(d.spike>=2.5) s++;
-
   return "★".repeat(s);
 }
 
@@ -221,55 +164,33 @@ function calcStars(d,avgCandle){
 =========================== */
 
 const scanBtn=document.getElementById("scanBtn");
-const SCAN_RESULT_MODE = "TOP20";
 
-scanBtn.onclick = async ()=>{
+scanBtn.onclick=async()=>{
 
-  const quotes = await fetchQuotes(LOW_PRICE_LIST);
+  clearBoard();
 
-  const candidates = [];
+  const quotes=await fetchQuotes(LOW_PRICE_LIST);
+  const candidates=[];
 
   for(const d of quotes){
 
-    const avgVol = await fetchVolumeAverage(d.symbol);
-    d.spike = volumeSpike(d.regularMarketVolume, avgVol);
+    const avgVol=await fetchVolumeAverage(d.symbol);
+    d.spike=volumeSpike(d.regularMarketVolume,avgVol);
 
-   if(!(d.regularMarketPrice<=300 &&
-     d.regularMarketVolume>=300000 &&
-     d.spike>=1.3)) continue;
-     
-    const candles = await fetchCandles(d.symbol);
-    const avgCandle = candleAverageScore(candles);
-    const stars = calcStars(d, avgCandle);
+    if(!(d.regularMarketPrice<=300 &&
+         d.regularMarketVolume>=300000 &&
+         d.spike>=1.3)) continue;
 
-    candidates.push({
-      symbol: d.symbol,
-      score: stars.length
-    });
+    const candles=await fetchCandles(d.symbol);
+    const avg=candleAverageScore(candles);
+    const stars=calcStars(d,avg);
+
+    candidates.push({symbol:d.symbol,score:stars.length});
   }
 
-  // ★多い順
-  candidates.sort((a,b)=>b.score - a.score);
+  candidates.sort((a,b)=>b.score-a.score);
 
-  let result = [];
-
-  if(SCAN_RESULT_MODE==="TOP10"){
-    result = candidates.slice(0,10);
-  }
-
-  if(SCAN_RESULT_MODE==="TOP20"){
-    result = candidates.slice(0,20);
-  }
-
-  if(SCAN_RESULT_MODE==="TOP30"){
-    result = candidates.slice(0,30);
-  }
-
-  if(SCAN_RESULT_MODE==="STAR4"){
-    result = candidates.filter(c=>c.score>=4);
-  }
-
-  result.forEach(c=>{
+  candidates.slice(0,20).forEach(c=>{
     insertSymbolToBoard(c.symbol);
   });
 
@@ -284,12 +205,11 @@ const STORAGE_KEY="adj_trade_board";
 const rows=document.getElementById("rows");
 
 function buildRows(){
-const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
-rows.innerHTML="";
-
-for(let i=0;i<20;i++){
-const tr=document.createElement("tr");
-tr.innerHTML=`
+  const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+  rows.innerHTML="";
+  for(let i=0;i<20;i++){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
 <td><input class="symbol" value="${saved[i]?.symbol||""}"></td>
 <td class="name">-</td>
 <td class="price">-</td>
@@ -300,18 +220,17 @@ tr.innerHTML=`
 <td class="sl">-</td>
 <td class="diff">-</td>
 <td><input class="note" value="${saved[i]?.note||""}"></td>
-<td><button class="delBtn">✖</button></td>
-`;
-rows.appendChild(tr);
-}
+<td><button class="delBtn">✖</button></td>`;
+    rows.appendChild(tr);
+  }
 }
 buildRows();
 
 /* ===========================
-   REFRESH BUTTON
+   REFRESH
 =========================== */
 
-const refreshBtn = document.getElementById("refreshBtn");
+const refreshBtn=document.getElementById("refreshBtn");
 
 async function refresh(){
 
@@ -319,149 +238,83 @@ async function refresh(){
   const symbols=inputs.map(i=>i.value.trim()).filter(v=>v!=="");
   if(symbols.length===0) return;
 
-  const data = await fetchQuotes(symbols);
+  const data=await fetchQuotes(symbols);
 
   inputs.forEach(input=>{
     const row=input.closest("tr");
-    const d=data.find(x=>x.symbol===input.value.trim().toUpperCase());
+    const d=data.find(x=>x.symbol===input.value.toUpperCase());
     if(!d) return;
 
-    row.querySelector(".price").textContent =
-      d.regularMarketPrice ? d.regularMarketPrice.toFixed(2) : "-";
-
-    row.querySelector(".change").textContent =
-      d.regularMarketChangePercent !== undefined
-        ? d.regularMarketChangePercent.toFixed(2)+"%"
-        : "-";
-
-    row.querySelector(".name").textContent =
-      d.shortName || "-";
+    row.querySelector(".price").textContent=d.regularMarketPrice?.toFixed(2)||"-";
+    row.querySelector(".change").textContent=d.regularMarketChangePercent?.toFixed(2)+"%"||"-";
+    row.querySelector(".name").textContent=d.shortName||"-";
 
     const pct=d.regularMarketChangePercent;
     row.className="";
-
-    if(pct>=2){
-      row.classList.add("buy");
-      row.querySelector(".status").textContent="🚀";
-    }
-    else if(pct<=-2){
-      row.classList.add("sl");
-      row.querySelector(".status").textContent="🔥";
-    }
-    else if(pct>=1){
-      row.classList.add("tp");
-      row.querySelector(".status").textContent="✨";
-    }
-    else{
-      row.classList.add("wait");
-      row.querySelector(".status").textContent="🫷";
-    }
+    if(pct>=2){row.classList.add("buy");row.querySelector(".status").textContent="🚀";}
+    else if(pct<=-2){row.classList.add("sl");row.querySelector(".status").textContent="🔥";}
+    else if(pct>=1){row.classList.add("tp");row.querySelector(".status").textContent="✨";}
+    else{row.classList.add("wait");row.querySelector(".status").textContent="🫷";}
 
     const entry=parseFloat(row.querySelector(".entry").value);
-
     if(entry){
       row.querySelector(".tp").textContent=(entry*1.02).toFixed(2);
       row.querySelector(".sl").textContent=(entry*0.99).toFixed(2);
-      row.querySelector(".diff").textContent=
-        (((d.regularMarketPrice-entry)/entry)*100).toFixed(1)+"%";
-    }else{
-      row.querySelector(".tp").textContent="-";
-      row.querySelector(".sl").textContent="-";
-      row.querySelector(".diff").textContent="-";
+      row.querySelector(".diff").textContent=(((d.regularMarketPrice-entry)/entry)*100).toFixed(1)+"%";
     }
   });
 
   saveBoard();
 }
 
-refreshBtn.onclick = refresh;
+refreshBtn.onclick=refresh;
 
 /* ===========================
-   INSERT
+   INSERT / SAVE / CLEAR
 =========================== */
 
 function insertSymbolToBoard(symbol){
-
-const inputs=[...document.querySelectorAll(".symbol")];
-if(inputs.some(i=>i.value===symbol)) return;
-
-const empty=inputs.find(i=>i.value==="");
-if(empty) empty.value=symbol;
-else alert("空き行なし");
-
-saveBoard();
+  const inputs=[...document.querySelectorAll(".symbol")];
+  if(inputs.some(i=>i.value===symbol)) return;
+  const empty=inputs.find(i=>i.value==="");
+  if(empty) empty.value=symbol;
 }
 
-
-/* ===========================
-   SAVE
-=========================== */
-
 function saveBoard(){
-const data=[...document.querySelectorAll("#rows tr")]
-.map(tr=>({
-symbol:tr.querySelector(".symbol").value,
-entry:tr.querySelector(".entry").value,
-note:tr.querySelector(".note").value
-}));
-localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+  const data=[...document.querySelectorAll("#rows tr")].map(tr=>({
+    symbol:tr.querySelector(".symbol").value,
+    entry:tr.querySelector(".entry").value,
+    note:tr.querySelector(".note").value
+  }));
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
 }
 
 function clearBoard(){
-
-  document.querySelectorAll("#rows tr").forEach(row=>{
-
-    row.querySelector(".symbol").value = "";
-    row.querySelector(".entry").value  = "";
-    row.querySelector(".note").value   = "";
-
-    row.querySelector(".name").textContent   = "-";
-    row.querySelector(".price").textContent  = "-";
-    row.querySelector(".change").textContent = "-";
-    row.querySelector(".status").textContent = "🫷";
-    row.querySelector(".tp").textContent     = "-";
-    row.querySelector(".sl").textContent     = "-";
-    row.querySelector(".diff").textContent   = "-";
-
-    row.className = "";
+  document.querySelectorAll("#rows tr").forEach(tr=>{
+    tr.querySelectorAll("input").forEach(i=>i.value="");
+    tr.querySelectorAll("td:not(:first-child)").forEach(td=>td.textContent="-");
+    tr.querySelector(".status").textContent="🫷";
+    tr.className="";
   });
-
   saveBoard();
 }
 
-const clearBtn = document.getElementById("clearBtn");
+document.getElementById("clearBtn").onclick=()=>{
+  if(confirm("ボードを全削除しますか？")){
+    clearBoard();
+  }
+};
 
-if(clearBtn){
-  clearBtn.onclick = ()=>{
-    if(confirm("ボードを全削除しますか？")){
-      clearBoard();
-    }
-  };
-}
 /* ===========================
    DELETE
 =========================== */
 
-document.addEventListener("click",(e)=>{
-
-if(!e.target.classList.contains("delBtn")) return;
-
-const row=e.target.closest("tr");
-
-row.querySelector(".symbol").value="";
-row.querySelector(".entry").value="";
-row.querySelector(".note").value="";
-
-row.querySelector(".name").textContent="-";
-row.querySelector(".price").textContent="-";
-row.querySelector(".change").textContent="-";
-row.querySelector(".status").textContent="🫷";
-row.querySelector(".tp").textContent="-";
-row.querySelector(".sl").textContent="-";
-row.querySelector(".diff").textContent="-";
-
-row.className="";
-saveBoard();
+document.addEventListener("click",e=>{
+  if(!e.target.classList.contains("delBtn")) return;
+  const row=e.target.closest("tr");
+  row.querySelectorAll("input").forEach(i=>i.value="");
+  row.querySelectorAll("td:not(:first-child)").forEach(td=>td.textContent="-");
+  row.querySelector(".status").textContent="🫷";
+  row.className="";
+  saveBoard();
 });
-
-console.log("JS READY");
