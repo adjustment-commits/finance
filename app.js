@@ -88,18 +88,25 @@ nameCell.textContent = d.shortName || d.longName || "-";
 
 const pct = d.regularMarketChangePercent;
 
+row.className = "";
+
 if(pct >= 2){
-statusCell.textContent="🚀 BUY";
+  statusCell.textContent="🚀 BUY";
+  row.classList.add("buy");
 }
 else if(pct <= -2){
-statusCell.textContent="🔥 SL";
+  statusCell.textContent="🔥 SL";
+  row.classList.add("sl");
 }
 else if(pct >= 1){
-statusCell.textContent="✨ TP候補";
+  statusCell.textContent="✨ TP候補";
+  row.classList.add("tp");
 }
 else{
-statusCell.textContent="🫷 WAIT";
+  statusCell.textContent="🫷 WAIT";
+  row.classList.add("wait");
 }
+  
 // --- 状態変化チェック ---
 const prev = row.dataset.prevStatus;
 const current = statusCell.textContent;
