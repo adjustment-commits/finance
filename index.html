@@ -29,6 +29,44 @@
 </div>
   </header>
     <main class="layout"><details open>
+
+ <section class="panel">
+  <div class="panelHeader">
+    <h2>スクリーニング結果</h2>
+    <div class="meta">
+      <div>最終更新: <span id="lastUpdated">--</span></div>
+      <div>取得銘柄: <span id="countTotal">0</span> / 候補: <span id="countCandidates">0</span></div>
+    </div>
+  </div>
+
+  <div class="tableWrap">
+    <table class="table" id="resultTable">
+      <thead>
+        <tr>
+          <th>状態</th>
+          <th>銘柄</th>
+          <th>価格</th>
+          <th>前日比%</th>
+          <th>出来高</th>
+          <th>出来高倍率</th>
+          <th>値幅%</th>
+          <th>EMA</th>
+          <th>ブレイク</th>
+          <th>SL / TP</th>
+        </tr>
+      </thead>
+      <tbody id="resultBody"></tbody>
+    </table>
+  </div>
+
+  <h2>ログ（シグナル）</h2>
+  <div class="logWrap" id="logWrap"></div>
+
+  <div class="footerHint">
+    使い方：PWAで候補抽出 → Market Speedで板/歩み値確認 → iSPEEDで発注。これが一番事故が減る。
+  </div>
+</section>
+
       
 <summary>⚙ 設定（クリックで開閉）</summary>
 <section class="panel">
@@ -158,42 +196,6 @@
   </div>
 </section>
 
-<section class="panel">
-  <div class="panelHeader">
-    <h2>スクリーニング結果</h2>
-    <div class="meta">
-      <div>最終更新: <span id="lastUpdated">--</span></div>
-      <div>取得銘柄: <span id="countTotal">0</span> / 候補: <span id="countCandidates">0</span></div>
-    </div>
-  </div>
-
-  <div class="tableWrap">
-    <table class="table" id="resultTable">
-      <thead>
-        <tr>
-          <th>状態</th>
-          <th>銘柄</th>
-          <th>価格</th>
-          <th>前日比%</th>
-          <th>出来高</th>
-          <th>出来高倍率</th>
-          <th>値幅%</th>
-          <th>EMA</th>
-          <th>ブレイク</th>
-          <th>SL / TP</th>
-        </tr>
-      </thead>
-      <tbody id="resultBody"></tbody>
-    </table>
-  </div>
-
-  <h2>ログ（シグナル）</h2>
-  <div class="logWrap" id="logWrap"></div>
-
-  <div class="footerHint">
-    使い方：PWAで候補抽出 → Market Speedで板/歩み値確認 → iSPEEDで発注。これが一番事故が減る。
-  </div>
-</section>
     </main>
         <script src="./app.js"></script>
     </body>
