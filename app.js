@@ -19,6 +19,7 @@ rows.innerHTML="";
 for(let i=0;i<20;i++){
 
 const sym = saved[i]?.symbol || "";
+const entry = saved[i]?.entry || "";
 const note = saved[i]?.note || "";
 
 const tr=document.createElement("tr");
@@ -28,8 +29,9 @@ tr.innerHTML=`
 <td class="price">-</td>
 <td class="change">-</td>
 <td class="status">🫷</td>
-<td><input class="note" value="${note}"></td>
-`;
+<td><input class="entry" type="number" value="${entry}"></td>
+<td><input class="note" value="${note}"></td>`
+;
 rows.appendChild(tr);
 }
 }
@@ -136,6 +138,7 @@ row.dataset.prevStatus = current;
 const saveData = [...document.querySelectorAll("#rows tr")]
   .map(tr => ({
     symbol: tr.querySelector(".symbol").value,
+    entry: tr.querySelector(".entry").value,
     note: tr.querySelector(".note").value
   }));
 
