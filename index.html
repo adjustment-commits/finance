@@ -32,6 +32,24 @@
 <input type="file" id="patternImage" accept="image/*">
 <img id="previewImage">
 
+<div id="patternControls">
+
+<label>実体率 % 以上</label>
+<input type="number" id="bodyRate" value="30">
+
+<label>下ヒゲ率 % 以上</label>
+<input type="number" id="lowerWickRate" value="25">
+
+<label>上ヒゲ率 % 以下</label>
+<input type="number" id="upperWickRate" value="40">
+
+<label>
+<input type="checkbox" id="bullOnly" checked>
+陽線のみ
+</label>
+
+</div>
+
 <button id="scanBtn">スキャン</button>
 
 <div class="modeSwitch">
