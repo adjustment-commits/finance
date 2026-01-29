@@ -170,21 +170,37 @@ return json.quoteResponse?.result||[];
  * CANDLE SCORE
  *************************************************/
 function candleScore(d){
-const o=d.regularMarketOpen;
-const h=d.regularMarketDayHigh;
-const l=d.regularMarketDayLow;
-const c=d.regularMarketPrice;
-if(!o||!h||!l||!c) return 0;
 
-let s=0;
-const body=Math.abs(c-o);
-const range=h-l;
-const wick=Math.min(o,c)-l;
+const open  = d.regularMarketOpen;
+const high  = d.regularMarketDayHigh;
+const low   = d.regularMarketDayLow;
+const close = d.regularMarketPrice;
 
-if(c>o) s++;
-if(body/range>=0.3) s++;
-if(wick/range>=0.25) s++;
-return s;
+if(!open || !high || !low || !close) return 0;
+
+const body = Math.abs(close-open);
+const range = high-low;
+const lower = Math.min(open,close)-low;
+const upper = high-Math.max(open,close);
+
+const bodyRate  = body/range*100;
+const lowerRate = lower/range*100;
+const upperRate = upper/range*100;
+
+// UI値
+const minBody  = Number(document.getElementById("bodyRate").value);
+const minLower = Number(document.getElementById("lowerWickRate").value);
+const maxUpper = Number(document.getElementById("upperWickRate").value);
+const bullOnly = document.getElementById("bullOnly").checked;
+
+let ok = true;
+
+if(bodyRate < minBody) ok=false;
+if(lowerRate < minLower) ok=false;
+if(upperRate > maxUpper) ok=false;
+if(bullOnly && close<=open) ok=false;
+
+return ok ? 3 : 0;
 }
 
 /*************************************************
