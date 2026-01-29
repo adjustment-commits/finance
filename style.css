@@ -55,3 +55,20 @@ tr.sl {
 tr.wait {
   background: rgba(148,163,184,0.15);
 }
+
+#app{
+  display:flex;
+  height:100vh;
+}
+
+#scannerPanel{
+  width:260px;
+  background:#111;
+  color:#fff;
+  padding:10px;
+}
+
+#boardPanel{
+  flex:1;
+  padding:10px;
+}
