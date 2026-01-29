@@ -206,7 +206,17 @@ async function scanLowStocks(){
        pct >= 2 &&
        Number(d.regularMarketVolume) > 1000000;
   });
+function calcStars(d){
+  let stars = 0;
 
+  if(d.regularMarketChangePercent >= 2) stars++;
+  if(d.regularMarketChangePercent >= 5) stars++;
+  if(d.regularMarketVolume >= 1000000) stars++;
+  if(d.regularMarketVolume >= 3000000) stars++;
+
+  return "★".repeat(stars);
+}
+  
   if(rockets.length===0){
     scannerList.innerHTML = "<div class='empty'>候補なし</div>";
     return;
@@ -216,10 +226,12 @@ async function scanLowStocks(){
 rockets.forEach(d=>{
   const div=document.createElement("div");
   div.className="scanItem";
+const stars = calcStars(d);
+
 div.innerHTML = `
 <div class="scanSymbol">${d.symbol}</div>
 <div class="scanName">${d.shortName || ""}</div>
-<div class="scanRocket">🚀</div>
+<div class="scanRocket">🚀 ${stars}</div>
 `;
 
   // ★ クリックで右表へ転記
