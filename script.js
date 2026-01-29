@@ -43,7 +43,7 @@ pwBtn.onclick = ()=>{
     pwMsg.textContent="パスワードが違います";
   }
 };
-
+const scanStatus = document.getElementById("scanStatus");
 
 /* ===========================
    API SETTINGS
