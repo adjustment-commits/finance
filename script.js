@@ -1,3 +1,38 @@
+const PW_KEY = "adj_trade_password";
+
+const lockScreen = document.getElementById("lockScreen");
+const pwInput = document.getElementById("pwInput");
+const pwBtn = document.getElementById("pwBtn");
+const pwMsg = document.getElementById("pwMsg");
+
+// 初期処理
+(function(){
+  if(!localStorage.getItem(PW_KEY)){
+    pwMsg.textContent="新しいパスワードを設定してください";
+  }else{
+    pwMsg.textContent="パスワードを入力してください";
+  }
+})();
+
+pwBtn.onclick = ()=>{
+  const input = pwInput.value.trim();
+  if(!input) return;
+
+  // 初回登録
+  if(!localStorage.getItem(PW_KEY)){
+    localStorage.setItem(PW_KEY,input);
+    lockScreen.style.display="none";
+    return;
+  }
+
+  // 照合
+  if(input === localStorage.getItem(PW_KEY)){
+    lockScreen.style.display="none";
+  }else{
+    pwMsg.textContent="パスワードが違います";
+  }
+};
+
 const API_KEY = "9da2719fc4mshd3a78b9ad23f661p120cb6jsn71fe0d28e188";
 const API_HOST = "yahoo-finance-real-time1.p.rapidapi.com";
 
