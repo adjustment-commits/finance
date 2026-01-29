@@ -289,8 +289,8 @@ scanBtn.onclick = async ()=>{
 
     if(scanMode==="short"){
       if(!(d.regularMarketPrice<=400 &&
-           d.regularMarketChangePercent>=0.3 &&
-           d.spike>=1.1)) continue;
+           d.regularMarketChangePercent>=0.2 &&
+           d.spike>=1.0)) continue;
     }
 
     if(scanMode==="long"){
