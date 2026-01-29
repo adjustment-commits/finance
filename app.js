@@ -44,23 +44,28 @@ return [];
 }
 
 /* ---------- 更新 ---------- */
-async function refresh(){
-const symbolInputs=[...document.querySelectorAll(".symbol")];
-const symbols=symbolInputs.map(i=>i.value.trim()).filter(Boolean);
+async function fetchQuotes(symbols){
+try{
+const url = `https://${API_HOST}/market/get-quotes?region=JP&symbols=${symbols.join(",")}`;
 
-if(symbols.length===0) return;
-
-const quotes=await fetchQuotes(symbols);
-
-quotes.forEach(q=>{
-symbolInputs.forEach(input=>{
-if(input.value===q.symbol){
-const tr=input.closest("tr");
-tr.querySelector(".price").textContent=q.regularMarketPrice?.toFixed(2) ?? "-";
-tr.querySelector(".change").textContent=q.regularMarketChangePercent?.toFixed(2) ?? "-";
+const res = await fetch(url,{
+headers:{
+"x-rapidapi-key":API_KEY,
+"x-rapidapi-host":API_HOST
 }
 });
-});
+
+const json = await res.json();
+
+if(!json.quoteResponse) return [];
+if(!json.quoteResponse.result) return [];
+
+return json.quoteResponse.result;
+
+}catch(e){
+console.log(e);
+return [];
+}
 }
 
 /* ---------- Auto ---------- */
