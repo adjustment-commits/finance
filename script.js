@@ -263,7 +263,7 @@ function candleScore(c){
   let s=0;
   if(close>open) s++;
   if(body/range>=0.3) s++;
-  if(lowerWick/range>=0.25) s++;
+  if(lowerWick/range>=0.4) s++;
 
   return s;
 }
@@ -284,25 +284,65 @@ function calcStars(d,avgCandle){
 
   let s=0;
 
+
+
+  /* =========================
+     SHORT（すでに動いている）
+  ========================= */
+
   if(scanMode==="short"){
+
     if(d.regularMarketChangePercent>=2) s++;
     if(d.regularMarketChangePercent>=5) s++;
+
     if(d.regularMarketVolume>=1000000) s++;
     if(d.regularMarketVolume>=3000000) s++;
+
     if(avgCandle>=1.5) s++;
-   if(d.spike>=2) s++;
-if(d.spike>=3) s++;
-  }else{
+
+    if(d.spike>=2) s++;
+    if(d.spike>=3) s++;
+  }
+
+  /* =========================
+     🚀 PRE-ROCKET（打ち上げ直前）
+  ========================= */
+
+  if(scanMode==="short"){
+
+    // 出来高が増え始め
+    if(d.spike>=1.2) s++;
+    if(d.spike>=1.5) s++;
+
+    // 価格はまだ横ばい
+    if(
+      d.regularMarketChangePercent>-1 &&
+      d.regularMarketChangePercent<1
+    ) s++;
+
+    // ローソク形状が良い
+    if(avgCandle>=1.0) s++;
+  }
+
+  /* =========================
+     LONG
+  ========================= */
+
+  if(scanMode==="long"){
+
     if(d.regularMarketPrice<=300) s++;
     if(d.regularMarketVolume>=500000) s++;
-    if(d.regularMarketChangePercent>-2 &&
-       d.regularMarketChangePercent<2) s++;
+
+    if(
+      d.regularMarketChangePercent>-2 &&
+      d.regularMarketChangePercent<2
+    ) s++;
+
     if(d.regularMarketChangePercent>0) s++;
   }
 
   return "★".repeat(s);
 }
-
 
 /* ===========================
    SCANNER
