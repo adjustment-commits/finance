@@ -149,13 +149,16 @@ async function fetchQuotes(symbols){
     });
     const json = await res.json();
     const result = json.quoteResponse?.result || [];
+
+    if(result.length===0) throw "no data";
+
     localStorage.setItem(QUOTE_CACHE_KEY,JSON.stringify(result));
     return result;
+
   }catch(e){
     return JSON.parse(localStorage.getItem(QUOTE_CACHE_KEY)||"[]");
   }
 }
-
 /* ===========================
    FETCH VOLUME AVERAGE
 =========================== */
