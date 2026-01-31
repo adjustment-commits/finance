@@ -367,7 +367,7 @@ function buildRows(){
   const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
   rows.innerHTML="";
 
-  for(let i=0;i<20;i++){
+  for(let i=0;i<50;i++){
     const tr=document.createElement("tr");
     tr.innerHTML=`
       <td><input class="symbol" value="${saved[i]?.symbol||""}"></td>
