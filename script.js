@@ -140,7 +140,7 @@ const QUOTE_CACHE_KEY = "adj_trade_last_quotes";
 
 async function fetchQuotes(symbols){
 
-  const CHUNK = 200;
+  const CHUNK = 50;
   let all = [];
 
   for(let i=0;i<symbols.length;i+=CHUNK){
