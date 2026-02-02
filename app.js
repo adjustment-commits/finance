@@ -391,29 +391,50 @@ applyFlowColor(cell,score);
 
 async function runRocketScan(){
 
-rocketArea.textContent="スキャン中...\n";
+rocketArea.textContent = "スキャン中...\n";
 
-let result=[];
+let result = [];
+const CHUNK_SIZE = 20;   // ← 1回で投げる銘柄数
 
-for(const code of LOW_PRICE_LIST){
+for(let i=0;i<LOW_PRICE_LIST.length;i+=CHUNK_SIZE){
 
-const data = await fetchStock(code);
-if(!data) continue;
+  const chunk = LOW_PRICE_LIST.slice(i, i+CHUNK_SIZE);
+  const symbols = chunk.join(",");
 
-const power = judgeRocketPower(data.raw);
-const flow  = calcFlowScore(data.raw);
+  try{
 
-console.log(code, power.label, flow);
+    const res = await fetch(
+      `https://yahoo-finance-real-time1.p.rapidapi.com/market/get-quotes?region=JP&symbols=${symbols}`,
+      {
+        method:"GET",
+        headers:{
+          "x-rapidapi-key": API_KEY,
+          "x-rapidapi-host": API_HOST
+        }
+      }
+    );
 
-if(power.label !== "🚀-" && flow >= 20){
-  result.push(
-   `${code} | ${data.name} | ${data.price.toFixed(1)}円 | ${power.label} | FLOW:${flow}`
-  );
-}
-   
-// API負荷軽減
-await new Promise(r=>setTimeout(r,300));
+    const j = await res.json();
+    const list = j.quoteResponse.result || [];
 
+    for(const d of list){
+
+      const power = judgeRocketPower(d);
+      const flow  = calcFlowScore(d);
+
+      if(power.label !== "🚀-" && flow >= 20){
+        result.push(
+          `${d.symbol} | ${d.shortName||d.longName} | ${d.regularMarketPrice.toFixed(1)}円 | ${power.label} | FLOW:${flow}`
+        );
+      }
+    }
+
+  }catch(e){
+    console.error(e);
+  }
+
+  // 0.6秒休憩
+  await new Promise(r=>setTimeout(r,600));
 }
 
 if(result.length===0){
