@@ -115,6 +115,7 @@ function addRow(data={}){
     <td><input class="price" value="${data.price||""}" disabled></td>
     <td><input class="change" value="${data.change||""}" disabled></td>
     <td class="status">-</td>
+    <td class="power">-</td>
     <td><button class="delBtn">✖</button></td>
   `;
 
@@ -127,18 +128,22 @@ function addRow(data={}){
     const symbol=e.target.value.trim().toUpperCase();
     if(!symbol) return;
 
-    const data=await fetchStock(symbol);
-    if(!data){
-      alert("取得失敗");
-      return;
-    }
+    const data = await fetchStock(symbol);
+if(!data){
+  alert("取得失敗");
+  return;
+}
 
-    tr.querySelector(".name").value=data.name;
-    tr.querySelector(".price").value=data.price;
-    tr.querySelector(".change").value=data.change;
+const power = judgeRocketPower(data.raw);
 
-    judgeRow(tr);
-    save();
+tr.querySelector(".name").value = data.name;
+tr.querySelector(".price").value = data.price.toFixed(2);
+tr.querySelector(".change").value = data.change.toFixed(2);
+tr.querySelector(".power").textContent = power.label;
+
+judgeRow(tr);
+save();
+  
   });
 
   board.appendChild(tr);
@@ -166,11 +171,12 @@ async function fetchStock(symbol){
     if(!d) return null;
 
     return{
-      name:d.longName||d.shortName||"-",
-      price:d.regularMarketPrice?.toFixed(2)||"-",
-      change:d.regularMarketChangePercent?.toFixed(2)||"-"
-    };
-
+  name:d.longName||d.shortName||"-",
+  price:d.regularMarketPrice,
+  change:d.regularMarketChangePercent,
+  raw:d   // ← これ追加
+};
+     
   }catch(e){
     console.error(e);
     return null;
@@ -193,11 +199,14 @@ async function updateAllRows(){
     const data=await fetchStock(code);
     if(!data) continue;
 
-    row.querySelector(".name").value=data.name;
-    row.querySelector(".price").value=data.price;
-    row.querySelector(".change").value=data.change;
+    const power = judgeRocketPower(data.raw);
 
-    judgeRow(row);
+row.querySelector(".name").value = data.name;
+row.querySelector(".price").value = data.price.toFixed(2);
+row.querySelector(".change").value = data.change.toFixed(2);
+row.querySelector(".power").textContent = power.label;
+
+judgeRow(row);
   }
 
   save();
@@ -375,4 +384,49 @@ rocketArea.addEventListener("click", async (e)=>{
   save();
 
 });
+
+
+/* ===========================
+   ROCKET power
+=========================== */   
+function judgeRocketPower(d){
+
+  let score = 0;
+  let reasons = [];
+
+  const price = d.regularMarketPrice;
+  const open  = d.regularMarketOpen;
+  const high  = d.regularMarketDayHigh;
+  const low   = d.regularMarketDayLow;
+
+  const upperWick = high - price;
+  const body = Math.abs(price - open);
+
+  if(upperWick < body * 0.5){
+    score++;
+    reasons.push("上ヒゲ短");
+  }
+
+  if(d.regularMarketVolume >= 1000000){
+    score++;
+    reasons.push("出来高");
+  }
+
+  if(d.regularMarketChangePercent >= 5){
+    score++;
+    reasons.push("値幅");
+  }
+
+  if((price - low) / (high - low) > 0.7){
+    score++;
+    reasons.push("高値引");
+  }
+
+  let label="🚀-";
+  if(score>=3) label="🚀+";
+  else if(score===2) label="🚀±";
+
+  return {label, score, reasons};
+}
+   
 });
