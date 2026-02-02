@@ -1,3 +1,5 @@
+document.addEventListener("DOMContentLoaded",()=>{
+
 const board = document.getElementById("board");
 const addRowBtn = document.getElementById("addRowBtn");
 const refreshBtn = document.getElementById("refreshBtn");
@@ -110,3 +112,5 @@ function load(){
   saved.forEach(d=>addRow(d));
 
 }
+
+});
