@@ -33,3 +33,6 @@ button{
 .buy{background:#064e3b;}
 .sell{background:#7f1d1d;}
 .wait{background:#111827;}
+
+.spike   { background:#1e3a8a; }
+.rocket  { background:#7c2d12; color:#fff; }
