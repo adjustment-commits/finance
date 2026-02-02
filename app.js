@@ -17,7 +17,7 @@ const STORAGE_KEY = "adj_stock_board";
    API SETTINGS
 =========================== */
 
-const API_KEY  = "9da2719fc4mshd3a78b9ad23f661p120cb6jsn71fe0d28e188";
+const API_KEY  = "7f90ccb5f2mshdfa89c12f41b259p1ce25djsn72ddaa09eea5";
 const API_HOST = "yahoo-finance-real-time1.p.rapidapi.com";
 
 /* ===========================
@@ -179,24 +179,33 @@ async function fetchStock(symbol){
 
 try{
 
-const GAS_URL = "ここにGASのURLを貼る";
+const res = await fetch(
+`https://yahoo-finance-real-time1.p.rapidapi.com/market/get-quotes?region=JP&symbols=${symbol}`,
+{
+method:"GET",
+headers:{
+"x-rapidapi-key": API_KEY,
+"x-rapidapi-host": API_HOST
+}
+}
+);
 
-const res = await fetch(`${GAS_URL}?symbol=${symbol}`);
-const d = await res.json();
+const j = await res.json();
+const d = j.quoteResponse.result[0];
 
-if(d.error) return null;
+if(!d) return null;
 
 return{
-  name: d.name,
-  price: d.price,
-  change: d.change,
+  name: d.shortName || d.longName || symbol,
+  price: d.regularMarketPrice,
+  change: d.regularMarketChangePercent,
   raw:{
-    regularMarketPrice: d.price,
-    regularMarketChangePercent: d.change,
-    regularMarketVolume: d.volume,
-    regularMarketDayHigh: d.high,
-    regularMarketDayLow: d.low,
-    regularMarketOpen: d.open
+    regularMarketPrice: d.regularMarketPrice,
+    regularMarketChangePercent: d.regularMarketChangePercent,
+    regularMarketVolume: d.regularMarketVolume,
+    regularMarketDayHigh: d.regularMarketDayHigh,
+    regularMarketDayLow: d.regularMarketDayLow,
+    regularMarketOpen: d.regularMarketOpen
   }
 };
 
