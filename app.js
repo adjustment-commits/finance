@@ -10,7 +10,7 @@ const refreshBtn = document.getElementById("refreshBtn");
 const clearBtn = document.getElementById("clearBtn");
 const rocketBtn = document.getElementById("rocketBtn");
 const rocketArea = document.getElementById("rocketArea");
-
+const SCAN_KEY = "adj_last_scan";
 const STORAGE_KEY = "adj_stock_board";
 
 /* ===========================
@@ -174,13 +174,13 @@ return tr;
 /* ===========================
    FETCH
 =========================== */
+async function fetchStock(symbol){
+
 if(!API_KEY){
   alert("APIキーが未設定です");
   return null;
 }
    
-async function fetchStock(symbol){
-
 try{
 
 const res = await fetch(
@@ -309,6 +309,11 @@ function load(){
 
 const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
 saved.forEach(d=>addRow(d));
+}
+
+const lastScan = localStorage.getItem(SCAN_KEY);
+if(lastScan){
+  rocketArea.textContent = lastScan;
 }
 
 /* ===========================
@@ -441,7 +446,8 @@ for(let i=0;i<LOW_PRICE_LIST.length;i+=CHUNK_SIZE){
 if(result.length===0){
   rocketArea.textContent="該当なし";
 }else{
-  rocketArea.textContent=result.join("\n");
+  rocketArea.textContent = result.join("\n");
+localStorage.setItem(SCAN_KEY, rocketArea.textContent);
 }
 
 }
