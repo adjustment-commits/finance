@@ -2,85 +2,34 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ADJ Trade Board</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="TradeBoard">
-<link rel="apple-touch-icon" href="icon-192.png">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADJ STOCK BOARD</title>
 <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<!-- 🔒 ロック画面 -->
-<div id="lockScreen">
-  <h2>ADJ Trade Board</h2>
-  <input type="password" id="pwInput" placeholder="パスワード">
-  <button id="pwBtn">OK</button>
-  <div id="pwMsg"></div>
-</div>
+<h1>ADJ STOCK BOARD</h1>
 
-<header>
-  <h1>ADJ Trade Board</h1>
-  <input id="quickSymbol" placeholder="銘柄コード">
-<button id="quickBtn">CHECK</button>
-</header>
-
-<div id="app">
-
-<!-- 🚀 スキャナー -->
-<div id="scannerPanel">
-  <h2>🚀 候補スキャナー</h2>
-
-  <div class="modeSwitch">
-    <button id="modeShort">短期</button>
-    <button id="modeLong">長期</button>
-    <span id="scanModeLabel">MODE : SHORT</span>
-  </div>
-
-  <button id="scanBtn">スキャン</button>
-  <div id="scanStatus"></div>
-</div>
-
-<!-- 📋 ボード -->
-<div id="boardPanel">
-
+<div class="controls">
+  <button id="addRowBtn">＋ 行追加</button>
   <button id="refreshBtn">更新</button>
   <button id="clearBtn">全削除</button>
-
-  <table>
-    <thead>
-      <tr>
-        <th>銘柄</th>
-        <th>企業名</th>
-        <th>価格</th>
-        <th>前日比</th>
-        <th>状態</th>
-        <th>Entry</th>
-        <th>TP</th>
-        <th>SL</th>
-        <th>損益%</th>
-        <th>備考</th>
-        <th>削除</th>
-      </tr>
-    </thead>
-    <tbody id="rows"></tbody>
-  </table>
-
 </div>
 
-</div>
+<table>
+<thead>
+<tr>
+<th>銘柄</th>
+<th>価格</th>
+<th>前日比%</th>
+<th>状態</th>
+<th>削除</th>
+</tr>
+</thead>
 
-<!-- JS -->
-<script src="script.js"></script>
+<tbody id="board"></tbody>
+</table>
 
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./service-worker.js");
-}
-</script>
-
+<script src="app.js"></script>
 </body>
 </html>
