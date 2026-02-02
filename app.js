@@ -251,6 +251,21 @@ function load(){
   saved.forEach(d=>addRow(d));
 }
 
+function calcStars(d){
+
+  let star = 0;
+
+  if(d.regularMarketChangePercent >= 2) star++;
+  if(d.regularMarketChangePercent >= 4) star++;
+
+  if(d.regularMarketVolume >= 1000000) star++;
+  if(d.regularMarketVolume >= 3000000) star++;
+
+  if(d.regularMarketPrice <= 500) star++;
+
+  return "★".repeat(star);
+}
+
 /* ===========================
    ROCKET SCANNER
 =========================== */
@@ -285,12 +300,13 @@ rocketBtn.onclick = async ()=>{
           d.regularMarketChangePercent>=2 &&
           d.regularMarketVolume>=1000000
         ){
-          results.push({
-            symbol:d.symbol,
-            name:d.longName||d.shortName||"",
-            price:d.regularMarketPrice,
-            change:d.regularMarketChangePercent
-          });
+         results.push({
+  symbol:d.symbol,
+  name:d.longName||d.shortName||"",
+  price:d.regularMarketPrice,
+  change:d.regularMarketChangePercent,
+  stars: calcStars(d)
+});
         }
 
       });
@@ -310,10 +326,10 @@ rocketBtn.onclick = async ()=>{
   rocketArea.innerHTML =
   results.map(r =>
     `<div class="rocketItem" data-symbol="${r.symbol}">
-      ${r.symbol} | ${r.name} | ${r.price}円 | ${r.change.toFixed(2)}%
+      ${r.stars} ${r.symbol} | ${r.name} | ${r.price}円 | ${r.change.toFixed(2)}%
     </div>`
   ).join("");
-
+   
 /* ===========================
    ROCKET CLICK → ADD ROW
 =========================== */
