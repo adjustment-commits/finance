@@ -139,26 +139,40 @@ setMode("short");
 const QUOTE_CACHE_KEY = "adj_trade_last_quotes";
 
 async function fetchQuotes(symbols){
-  try{
-    const url = `https://${API_HOST}/market/get-quotes?region=JP&symbols=${symbols.join(",")}`;
-    const res = await fetch(url,{
-      headers:{
-        "x-rapidapi-key":API_KEY,
-        "x-rapidapi-host":API_HOST
-      }
-    });
-    const json = await res.json();
-    const result = json.quoteResponse?.result || [];
 
-    if(result.length===0) throw "no data";
+  const CHUNK = 200;
+  let all = [];
 
-    localStorage.setItem(QUOTE_CACHE_KEY,JSON.stringify(result));
-    return result;
+  for(let i=0;i<symbols.length;i+=CHUNK){
 
-  }catch(e){
-    return JSON.parse(localStorage.getItem(QUOTE_CACHE_KEY)||"[]");
+    const part = symbols.slice(i,i+CHUNK);
+
+    try{
+      const url = `https://${API_HOST}/market/get-quotes?region=JP&symbols=${part.join(",")}`;
+
+      const res = await fetch(url,{
+        headers:{
+          "x-rapidapi-key":API_KEY,
+          "x-rapidapi-host":API_HOST
+        }
+      });
+
+      const json = await res.json();
+      const result = json.quoteResponse?.result || [];
+
+      all = all.concat(result);
+
+    }catch(e){
+      console.warn("fetchQuotes chunk error", e);
+    }
   }
+
+  console.log("FETCH QUOTES TOTAL:", all.length);
+
+  localStorage.setItem(QUOTE_CACHE_KEY,JSON.stringify(all));
+  return all;
 }
+
 /* ===========================
    FETCH VOLUME AVERAGE
 =========================== */
