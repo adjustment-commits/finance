@@ -323,13 +323,14 @@ rocketBtn.onclick = async ()=>{
 
   results.sort((a,b)=>b.change-a.change);
 
-  rocketArea.innerHTML =
-  results.map(r =>
-    `<div class="rocketItem" data-symbol="${r.symbol}">
-      ${r.stars} ${r.symbol} | ${r.name} | ${r.price}円 | ${r.change.toFixed(2)}%
-    </div>`
-  ).join("");
-   
+const filtered = results.filter(r => r.stars.length >= 4);
+
+rocketArea.innerHTML =
+  filtered.map(r =>
+    `${r.stars} ${r.symbol} | ${r.name} | ${r.price}円 | ${r.change.toFixed(2)}%`
+  ).join("\n");
+
+
 /* ===========================
    ROCKET CLICK → ADD ROW
 =========================== */
