@@ -54,6 +54,7 @@ function addRow(data = {}) {
     <td><input class="code" value="${data.code || ""}" placeholder="7203.T"></td>
     <td><input class="name" value="${data.name || ""}" disabled></td>
     <td><input class="price" value="${data.price || ""}" disabled></td>
+    <td><input class="volume" value="${data.volume || ""}" disabled></td>
     <td><input class="change" value="${data.change || ""}" disabled></td>
     <td class="status">-</td>
     <td><button class="delBtn">✖</button></td>
@@ -65,44 +66,26 @@ function addRow(data = {}) {
     save();
   };
 
-  /* コード入力 → 自動取得（デバウンス） */
+  /* コード入力 → 自動取得 */
 
-  let timer = null;
-
+  let timer=null;
   const codeInput = tr.querySelector(".code");
 
-  codeInput.addEventListener("input", () => {
-
+  codeInput.addEventListener("input",()=>{
     clearTimeout(timer);
-
-    timer = setTimeout(async () => {
-
+    timer=setTimeout(async ()=>{
       const symbol = codeInput.value.trim().toUpperCase();
-      if(symbol.length < 4) return;
+      if(symbol.length<4) return;
 
       const data = await fetchStock(symbol);
       if(!data){
-        tr.querySelector(".status").textContent = "×";
+        tr.querySelector(".status").textContent="×";
         return;
       }
 
-      tr.querySelector(".name").value = data.name;
-      tr.querySelector(".price").value = data.price;
-      tr.querySelector(".change").value = data.change;
-
-      judgeRow(tr);
+      fillRow(tr,data);
       save();
-
-    }, 600);
-
-  });
-
-  /* Enterキーでも更新 */
-
-  codeInput.addEventListener("keydown",(e)=>{
-    if(e.key==="Enter"){
-      updateAllRows();
-    }
+    },600);
   });
 
   board.appendChild(tr);
@@ -115,14 +98,13 @@ function addRow(data = {}) {
 async function fetchStock(symbol){
 
   try{
-
     const url =
       `https://${API_HOST}/market/get-quotes?region=JP&symbols=${symbol}`;
 
     const res = await fetch(url,{
       headers:{
-        "x-rapidapi-key": API_KEY,
-        "x-rapidapi-host": API_HOST
+        "x-rapidapi-key":API_KEY,
+        "x-rapidapi-host":API_HOST
       }
     });
 
@@ -133,11 +115,12 @@ async function fetchStock(symbol){
     return {
       name: d.longName || d.shortName || "-",
       price: d.regularMarketPrice?.toFixed(2) || "-",
+      volume: d.regularMarketVolume || "-",
       change: d.regularMarketChangePercent?.toFixed(2) || "-"
     };
 
-  }catch(err){
-    console.error(err);
+  }catch(e){
+    console.error(e);
     return null;
   }
 }
@@ -148,24 +131,34 @@ async function fetchStock(symbol){
 
 async function updateAllRows(){
 
-  const rows = document.querySelectorAll("#board tr");
+  const rows=document.querySelectorAll("#board tr");
 
   for(const row of rows){
 
-    const code = row.querySelector(".code").value.trim();
+    const code=row.querySelector(".code").value.trim();
     if(!code) continue;
 
-    const data = await fetchStock(code);
+    const data=await fetchStock(code);
     if(!data) continue;
 
-    row.querySelector(".name").value = data.name;
-    row.querySelector(".price").value = data.price;
-    row.querySelector(".change").value = data.change;
-
-    judgeRow(row);
+    fillRow(row,data);
   }
 
   save();
+}
+
+/* ===========================
+   FILL ROW
+=========================== */
+
+function fillRow(row,data){
+
+  row.querySelector(".name").value=data.name;
+  row.querySelector(".price").value=data.price;
+  row.querySelector(".volume").value=formatVolume(data.volume);
+  row.querySelector(".change").value=data.change;
+
+  judgeRow(row);
 }
 
 /* ===========================
@@ -174,28 +167,39 @@ async function updateAllRows(){
 
 function judgeRow(row){
 
-  const change =
-    parseFloat(row.querySelector(".change").value);
-
-  row.className = "";
+  const change=parseFloat(row.querySelector(".change").value);
+  row.className="";
 
   if(isNaN(change)){
-    row.querySelector(".status").textContent = "-";
+    row.querySelector(".status").textContent="-";
     return;
   }
 
-  if(change >= 2){
+  if(change>=2){
     row.classList.add("buy");
-    row.querySelector(".status").textContent = "🚀";
+    row.querySelector(".status").textContent="🚀";
   }
-  else if(change <= -2){
+  else if(change<=-2){
     row.classList.add("sell");
-    row.querySelector(".status").textContent = "🔥";
+    row.querySelector(".status").textContent="🔥";
   }
   else{
     row.classList.add("wait");
-    row.querySelector(".status").textContent = "🫷";
+    row.querySelector(".status").textContent="🫷";
   }
+}
+
+/* ===========================
+   VOLUME FORMAT
+=========================== */
+
+function formatVolume(v){
+
+  if(!v || isNaN(v)) return "-";
+
+  if(v>=1000000) return (v/1000000).toFixed(1)+"M";
+  if(v>=1000) return (v/1000).toFixed(1)+"K";
+  return v;
 }
 
 /* ===========================
@@ -204,19 +208,16 @@ function judgeRow(row){
 
 function save(){
 
-  const data =
-    [...document.querySelectorAll("#board tr")]
-    .map(r=>({
-      code: r.querySelector(".code").value,
-      name: r.querySelector(".name").value,
-      price: r.querySelector(".price").value,
-      change: r.querySelector(".change").value
-    }));
+  const data=[...document.querySelectorAll("#board tr")]
+  .map(r=>({
+    code:r.querySelector(".code").value,
+    name:r.querySelector(".name").value,
+    price:r.querySelector(".price").value,
+    volume:r.querySelector(".volume").value,
+    change:r.querySelector(".change").value
+  }));
 
-  localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify(data)
-  );
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
 }
 
 /* ===========================
@@ -225,8 +226,6 @@ function save(){
 
 function load(){
 
-  const saved =
-    JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-
-  saved.forEach(d => addRow(d));
+  const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+  saved.forEach(d=>addRow(d));
 }
