@@ -3,34 +3,34 @@ const addRowBtn = document.getElementById("addRowBtn");
 const refreshBtn = document.getElementById("refreshBtn");
 const clearBtn = document.getElementById("clearBtn");
 
-const STORAGE_KEY="adj_board";
+const STORAGE_KEY = "adj_stock_board";
 
 load();
 
-/* 行追加 */
+/* ========== 行追加 ========== */
 
-addRowBtn.onclick=()=>{
+addRowBtn.onclick = () => {
   addRow();
   save();
 };
 
-/* 更新 */
+/* ========== 更新 ========== */
 
-refreshBtn.onclick=()=>{
+refreshBtn.onclick = () => {
   calculate();
   save();
 };
 
-/* 全削除 */
+/* ========== 全削除 ========== */
 
-clearBtn.onclick=()=>{
+clearBtn.onclick = () => {
   if(confirm("全削除しますか？")){
     board.innerHTML="";
     save();
   }
 };
 
-/* 行生成 */
+/* ========== 行生成 ========== */
 
 function addRow(data={}){
 
@@ -53,14 +53,14 @@ function addRow(data={}){
   board.appendChild(tr);
 }
 
-/* 判定 */
+/* ========== 状態判定 ========== */
 
 function calculate(){
 
   document.querySelectorAll("#board tr").forEach(row=>{
 
-    const val=row.querySelector(".change").value;
-    const change=parseFloat(val);
+    const val = row.querySelector(".change").value;
+    const change = parseFloat(val);
 
     row.className="";
 
@@ -81,10 +81,12 @@ function calculate(){
       row.classList.add("wait");
       row.querySelector(".status").textContent="🫷";
     }
+
   });
+
 }
 
-/* 保存 */
+/* ========== 保存 ========== */
 
 function save(){
 
@@ -99,11 +101,12 @@ function save(){
   localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
 }
 
-/* 復元 */
+/* ========== 復元 ========== */
 
 function load(){
 
   const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
 
   saved.forEach(d=>addRow(d));
+
 }
