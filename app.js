@@ -151,23 +151,32 @@ async function updateAllRows(){
    FILL ROW
 =========================== */
 
-function fillRow(row,data){
+async function fillRow(row,data){
 
-  row.querySelector(".name").value=data.name;
-  row.querySelector(".price").value=data.price;
-  row.querySelector(".volume").value=formatVolume(data.volume);
-  row.querySelector(".change").value=data.change;
+  row.querySelector(".name").value = data.name;
+  row.querySelector(".price").value = data.price;
+  row.querySelector(".volume").value = formatVolume(data.volume);
+  row.querySelector(".change").value = data.change;
 
-  judgeRow(row);
+  const symbol = row.querySelector(".code").value.trim();
+
+  const avgVol = await fetchAvgVolume(symbol);
+
+  let spike = 0;
+  if(avgVol && data.volume){
+    spike = data.volume / avgVol;
+  }
+
+  judgeRow(row, spike);
 }
 
 /* ===========================
    JUDGE
 =========================== */
 
-function judgeRow(row){
+function judgeRow(row, spike = 0){
 
-  const change=parseFloat(row.querySelector(".change").value);
+  const change = parseFloat(row.querySelector(".change").value);
   row.className="";
 
   if(isNaN(change)){
@@ -175,14 +184,22 @@ function judgeRow(row){
     return;
   }
 
-  if(change>=2){
-    row.classList.add("buy");
+  // 🚀 ロケット条件
+  if(change >= 2 && spike >= 2){
+    row.classList.add("rocket");
     row.querySelector(".status").textContent="🚀";
   }
-  else if(change<=-2){
+  // 出来高だけ急増
+  else if(spike >= 2){
+    row.classList.add("spike");
+    row.querySelector(".status").textContent="📈";
+  }
+  // 下落
+  else if(change <= -2){
     row.classList.add("sell");
     row.querySelector(".status").textContent="🔥";
   }
+  // それ以外
   else{
     row.classList.add("wait");
     row.querySelector(".status").textContent="🫷";
@@ -228,4 +245,30 @@ function load(){
 
   const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
   saved.forEach(d=>addRow(d));
+}
+
+/* ===========================
+   FETCH AVG VOLUME (10DAY)
+=========================== */
+
+async function fetchAvgVolume(symbol){
+
+  try{
+    const url =
+      `https://${API_HOST}/stock/v2/get-summary?symbol=${symbol}`;
+
+    const res = await fetch(url,{
+      headers:{
+        "x-rapidapi-key":API_KEY,
+        "x-rapidapi-host":API_HOST
+      }
+    });
+
+    const json = await res.json();
+    return json.summaryDetail?.averageDailyVolume10Day?.raw || null;
+
+  }catch(e){
+    console.error(e);
+    return null;
+  }
 }
