@@ -18,7 +18,7 @@ const STORAGE_KEY = "adj_stock_board";
 =========================== */
 
 const API_KEY  = "9da2719fc4mshd3a78b9ad23f661p120cb6jsn71fe0d28e188";
-const API_HOST = "yahoo-finance-real-time1.p.rapidapi.com";
+const API_HOST = "yahoo-finance127.p.rapidapi.com";
 
 /* ===========================
    LOW PRICE LIST
@@ -177,23 +177,24 @@ return tr;
 async function fetchStock(symbol){
 
 try{
-const url=`https://${API_HOST}/market/get-quotes?region=JP&symbols=${symbol}`;
 
-const res=await fetch(url,{
+const url = `https://${API_HOST}/quote?symbol=${symbol}`;
+
+const res = await fetch(url,{
 headers:{
-"x-rapidapi-key":API_KEY,
-"x-rapidapi-host":API_HOST
+"x-rapidapi-key": API_KEY,
+"x-rapidapi-host": API_HOST
 }});
 
-const json=await res.json();
-const d=json.quoteResponse?.result?.[0];
+const json = await res.json();
+const d = json?.quoteResponse?.result?.[0];
 if(!d) return null;
 
 return{
-name:d.longName||d.shortName||"-",
-price:d.regularMarketPrice,
-change:d.regularMarketChangePercent,
-raw:d
+name: d.longName || d.shortName || "-",
+price: d.regularMarketPrice,
+change: d.regularMarketChangePercent,
+raw: d
 };
 
 }catch(e){
@@ -201,7 +202,7 @@ console.error(e);
 return null;
 }
 }
-
+   
 /* ===========================
    UPDATE ALL
 =========================== */
