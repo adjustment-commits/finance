@@ -147,7 +147,7 @@ headers:{
 }});
 
 const json = await res.json();
-const d = json?.quoteResponse?.result?.[0];
+const d = json?.quote;
 if(!d) return null;
 
 return{
