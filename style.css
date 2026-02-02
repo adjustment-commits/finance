@@ -1,24 +1,202 @@
-/* ===== 視認性改善 ===== */
+/* ===========================
+   BASE
+=========================== */
 
-/* ロケット行（買い） */
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  padding:20px;
+  background:radial-gradient(circle at top,#0f172a,#020617);
+  color:#e5e7eb;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans JP",sans-serif;
+}
+
+h2{
+  margin:0 0 12px 0;
+  font-weight:700;
+  letter-spacing:1px;
+}
+
+/* ===========================
+   CONTROLS
+=========================== */
+
+.controls{
+  margin-bottom:10px;
+}
+
+button{
+  background:#2563eb;
+  color:#fff;
+  border:none;
+  padding:8px 14px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
+  margin-right:6px;
+}
+
+button:hover{
+  background:#1d4ed8;
+}
+
+/* ===========================
+   TABLE
+=========================== */
+
+table{
+  border-collapse:collapse;
+  min-width:720px;
+  background:#020617;
+  box-shadow:0 0 0 1px #1e293b inset;
+}
+
+thead{
+  background:#020617;
+}
+
+th,td{
+  border:1px solid #1e293b;
+  padding:6px;
+  text-align:center;
+}
+
+th{
+  font-size:13px;
+  color:#cbd5f5;
+}
+
+tbody tr{
+  transition:background 0.2s;
+}
+
+/* ===========================
+   INPUTS
+=========================== */
+
+input{
+  width:100%;
+  background:#020617;
+  border:1px solid #1e293b;
+  color:#e5e7eb;
+  padding:4px 6px;
+  border-radius:4px;
+  text-align:center;
+  font-size:13px;
+}
+
+input:disabled{
+  opacity:0.9;
+}
+
+/* ===========================
+   DELETE BUTTON
+=========================== */
+
+.delBtn{
+  background:#2563eb;
+  border:none;
+  color:white;
+  width:32px;
+  height:26px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.delBtn:hover{
+  background:#1d4ed8;
+}
+
+/* ===========================
+   STATUS CELL
+=========================== */
+
+td.status{
+  font-size:18px;
+  text-align:center;
+}
+
+/* ===========================
+   ROW STATES
+=========================== */
+
+/* BUY */
+tr.buy{
+  background:#064e3b;
+}
+
 tr.buy input{
   color:#ffffff;
   font-weight:600;
 }
 
-/* 待機 */
-tr.wait input{
-  color:#e5e7eb;
+/* SELL */
+tr.sell{
+  background:#7f1d1d;
 }
 
-/* 売り */
 tr.sell input{
   color:#ffffff;
   font-weight:600;
 }
 
-/* 状態アイコン中央寄せ */
-td.status{
-  text-align:center;
-  font-size:18px;
+/* WAIT */
+tr.wait{
+  background:#0f172a;
+}
+
+tr.wait input{
+  color:#e5e7eb;
+}
+
+/* ===========================
+   ROCKET BOX
+=========================== */
+
+.rocketBox{
+  margin-top:12px;
+}
+
+#rocketBtn{
+  background:#f59e0b;
+  color:#000;
+}
+
+#rocketBtn:hover{
+  background:#d97706;
+}
+
+/* メッセージ表示欄 */
+#rocketArea{
+  margin-top:8px;
+  background:#020617;
+  border:1px solid #1e293b;
+  padding:10px;
+  border-radius:6px;
+  min-height:40px;
+  font-size:13px;
+  white-space:pre-wrap;
+  color:#e5e7eb;
+}
+
+/* ===========================
+   RESPONSIVE
+=========================== */
+
+@media(max-width:900px){
+  table{
+    min-width:100%;
+  }
+
+  th,td{
+    font-size:12px;
+  }
+
+  button{
+    font-size:12px;
+    padding:6px 10px;
+  }
 }
