@@ -84,18 +84,21 @@ tr.innerHTML=`
 <td><input class="name" value="${data.name||""}" disabled></td>
 <td><input class="price" value="${data.price||""}" disabled></td>
 <td><input class="change" value="${data.change||""}" disabled></td>
-<td class="status">-</td>
 <td class="power">-</td>
 <td class="flow">0</td>
 <td class="delta">0</td>
+<td class="star"></td>
 <td><button class="delBtn">✖</button></td>
 `;
 
-tr.querySelector(".delBtn").onclick=()=>{ tr.remove(); save(); };
+tr.querySelector(".delBtn").onclick = ()=>{
+  tr.remove();
+  save();
+};
 
 tr.querySelector(".code").addEventListener("change", async(e)=>{
 
-const symbol=e.target.value.trim().toUpperCase();
+const symbol = e.target.value.trim().toUpperCase();
 if(!symbol) return;
 
 const data = await fetchStock(symbol);
@@ -105,18 +108,25 @@ const power = judgeRocketPower(data.raw);
 const flow  = calcFlowScore(data.raw);
 const delta = calcDeltaFlow(symbol, flow);
 
-tr.querySelector(".name").value = data.name;
-tr.querySelector(".price").value = data.price.toFixed(2);
+/* 表示 */
+tr.querySelector(".name").value   = data.name;
+tr.querySelector(".price").value  = data.price.toFixed(2);
 tr.querySelector(".change").value = data.change.toFixed(2);
 tr.querySelector(".power").textContent = power.label;
 
+/* FLOW */
 const flowCell = tr.querySelector(".flow");
 flowCell.textContent = flow;
 applyFlowColor(flowCell, flow);
 
+/* ΔFLOW */
 const deltaCell = tr.querySelector(".delta");
 deltaCell.textContent = (delta>0?"+":"")+delta;
 applyDeltaColor(deltaCell, delta);
+
+/* ⭐ */
+tr.querySelector(".star").textContent =
+  (power.label==="🚀+" && delta>0) ? "⭐" : "";
 
 judgeRow(tr);
 save();
@@ -174,6 +184,19 @@ if(!data) continue;
 const power = judgeRocketPower(data.raw);
 const flow  = calcFlowScore(data.raw);
 const delta = calcDeltaFlow(code, flow);
+
+row.querySelector(".name").value = data.name;
+row.querySelector(".price").value = data.price.toFixed(2);
+row.querySelector(".change").value = data.change.toFixed(2);
+row.querySelector(".power").textContent = power.label;
+
+const flowCell=row.querySelector(".flow");
+flowCell.textContent=flow;
+applyFlowColor(flowCell,flow);
+
+const deltaCell=row.querySelector(".delta");
+deltaCell.textContent=(delta>0?"+":"")+delta;
+applyDeltaColor(deltaCell,delta);;
 
 row.querySelector(".name").value = data.name;
 row.querySelector(".price").value = data.price.toFixed(2);
