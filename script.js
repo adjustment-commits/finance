@@ -148,7 +148,7 @@ async function fetchQuotes(symbols){
     const part = symbols.slice(i,i+CHUNK);
 
     try{
-      const url = `https://${API_HOST}/market/get-quotes?region=JP&symbols=${part.join(",")}`;
+      const url = `https://corsproxy.io/?https://${API_HOST}/market/get-quotes?region=JP&symbols=${part.join(",")}`;
 
       const res = await fetch(url,{
         headers:{
@@ -178,8 +178,8 @@ async function fetchQuotes(symbols){
 =========================== */
 
 async function fetchVolumeAverage(symbol){
-  const url = `https://${API_HOST}/stock/v2/get-summary?symbol=${symbol}`;
-  const res = await fetch(url,{
+  const url = `https://corsproxy.io/?https://${API_HOST}/stock/v2/get-summary?symbol=${symbol}`;
+   const res = await fetch(url,{
     headers:{
       "x-rapidapi-key":API_KEY,
       "x-rapidapi-host":API_HOST
@@ -203,7 +203,7 @@ function volumeSpike(today, avg){
 =========================== */
 
 async function fetchCandles(symbol){
-  const url = `https://${API_HOST}/stock/v3/get-historical-data?symbol=${symbol}&region=JP`;
+  const url = `https://corsproxy.io/?https://${API_HOST}/stock/v3/get-historical-data?symbol=${symbol}&region=JP`;
   const res = await fetch(url,{
     headers:{
       "x-rapidapi-key":API_KEY,
