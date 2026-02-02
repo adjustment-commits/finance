@@ -137,29 +137,31 @@ return tr;
 async function fetchStock(symbol){
 
 try{
-const url=`https://${API_HOST}/market/get-quotes?region=JP&symbols=${symbol}`;
 
-const res=await fetch(url,{
+const url = `https://${API_HOST}/stock/get-quote?symbol=${symbol}`;
+
+const res = await fetch(url,{
 headers:{
-"x-rapidapi-key":API_KEY,
-"x-rapidapi-host":API_HOST
+"x-rapidapi-key": API_KEY,
+"x-rapidapi-host": API_HOST
 }});
 
-const json=await res.json();
-const d=json.quoteResponse?.result?.[0];
+const json = await res.json();
+const d = json?.quoteResponse?.result?.[0];
 if(!d) return null;
 
 return{
-name:d.longName||d.shortName||"-",
-price:d.regularMarketPrice,
-change:d.regularMarketChangePercent,
-raw:d
+name: d.longName || d.shortName || "-",
+price: d.regularMarketPrice,
+change: d.regularMarketChangePercent,
+raw: d
 };
 
 }catch(e){
 console.error(e);
 return null;
 }
+
 }
 
 /* ===========================
