@@ -184,7 +184,8 @@ async function fetchStock(symbol){
 try{
 
 const res = await fetch(
-`https://yahoo-finance-real-time1.p.rapidapi.com/market/get-quotes?region=JP&symbols=${symbol}`,
+`https://yahoo-finance-real-time1.p.rapidapi.com/market/get-quotes?region=JP&lang=ja&symbols=${symbol}`
+   
 {
 method:"GET",
 headers:{
@@ -200,7 +201,7 @@ const d = j.quoteResponse.result[0];
 if(!d) return null;
 
 return{
-  name: d.shortName || d.longName || symbol,
+  name: d.longName || d.shortName || symbol,
   price: d.regularMarketPrice,
   change: d.regularMarketChangePercent,
   raw:{
