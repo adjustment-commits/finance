@@ -226,21 +226,17 @@ const change=parseFloat(row.querySelector(".change").value);
 row.className="";
 
 if(isNaN(change)){
-row.querySelector(".status").textContent="-";
 return;
 }
 
 if(change>=2){
 row.classList.add("buy");
-row.querySelector(".status").textContent="🚀";
 }
 else if(change<=-2){
 row.classList.add("sell");
-row.querySelector(".status").textContent="🔥";
 }
 else{
 row.classList.add("wait");
-row.querySelector(".status").textContent="🫷";
 }
 }
 
