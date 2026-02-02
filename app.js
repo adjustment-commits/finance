@@ -3,46 +3,34 @@ const addRowBtn = document.getElementById("addRowBtn");
 const refreshBtn = document.getElementById("refreshBtn");
 const clearBtn = document.getElementById("clearBtn");
 
-const STORAGE_KEY = "adj_simple_board";
-
-/* -------------------
- 初期化
-------------------- */
+const STORAGE_KEY="adj_board";
 
 load();
 
-/* -------------------
- 行追加
-------------------- */
+/* 行追加 */
 
-addRowBtn.onclick = () => {
+addRowBtn.onclick=()=>{
   addRow();
   save();
 };
 
-/* -------------------
- 更新
-------------------- */
+/* 更新 */
 
-refreshBtn.onclick = () => {
+refreshBtn.onclick=()=>{
   calculate();
   save();
 };
 
-/* -------------------
- 全削除
-------------------- */
+/* 全削除 */
 
-clearBtn.onclick = () => {
+clearBtn.onclick=()=>{
   if(confirm("全削除しますか？")){
     board.innerHTML="";
     save();
   }
 };
 
-/* -------------------
- 行作成
-------------------- */
+/* 行生成 */
 
 function addRow(data={}){
 
@@ -65,21 +53,21 @@ function addRow(data={}){
   board.appendChild(tr);
 }
 
-/* -------------------
- 判定
-------------------- */
+/* 判定 */
 
 function calculate(){
 
   document.querySelectorAll("#board tr").forEach(row=>{
 
-    const change = parseFloat(
-      row.querySelector(".change").value
-    );
+    const val=row.querySelector(".change").value;
+    const change=parseFloat(val);
 
     row.className="";
 
-    if(isNaN(change)) return;
+    if(isNaN(change)){
+      row.querySelector(".status").textContent="-";
+      return;
+    }
 
     if(change>=2){
       row.classList.add("buy");
@@ -94,37 +82,28 @@ function calculate(){
       row.querySelector(".status").textContent="🫷";
     }
   });
-
 }
 
-/* -------------------
- 保存
-------------------- */
+/* 保存 */
 
 function save(){
 
   const data=[...document.querySelectorAll("#board tr")]
-  .map(row=>({
-
-    code: row.querySelector(".code").value,
-    name: row.querySelector(".name").value,
-    price: row.querySelector(".price").value,
-    change: row.querySelector(".change").value
-
+  .map(r=>({
+    code:r.querySelector(".code").value,
+    name:r.querySelector(".name").value,
+    price:r.querySelector(".price").value,
+    change:r.querySelector(".change").value
   }));
 
   localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
 }
 
-/* -------------------
- 復元
-------------------- */
+/* 復元 */
 
 function load(){
 
-  const saved=JSON.parse(
-    localStorage.getItem(STORAGE_KEY)||"[]"
-  );
+  const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
 
   saved.forEach(d=>addRow(d));
 }
