@@ -65,23 +65,44 @@ function addRow(data = {}) {
     save();
   };
 
-  /* コード入力 → 取得 */
-  tr.querySelector(".code").addEventListener("change", async (e)=>{
-    const symbol = e.target.value.trim().toUpperCase();
-    if(!symbol) return;
+  /* コード入力 → 自動取得（デバウンス） */
 
-    const data = await fetchStock(symbol);
-    if(!data){
-      alert("取得失敗");
-      return;
+  let timer = null;
+
+  const codeInput = tr.querySelector(".code");
+
+  codeInput.addEventListener("input", () => {
+
+    clearTimeout(timer);
+
+    timer = setTimeout(async () => {
+
+      const symbol = codeInput.value.trim().toUpperCase();
+      if(symbol.length < 4) return;
+
+      const data = await fetchStock(symbol);
+      if(!data){
+        tr.querySelector(".status").textContent = "×";
+        return;
+      }
+
+      tr.querySelector(".name").value = data.name;
+      tr.querySelector(".price").value = data.price;
+      tr.querySelector(".change").value = data.change;
+
+      judgeRow(tr);
+      save();
+
+    }, 600);
+
+  });
+
+  /* Enterキーでも更新 */
+
+  codeInput.addEventListener("keydown",(e)=>{
+    if(e.key==="Enter"){
+      updateAllRows();
     }
-
-    tr.querySelector(".name").value = data.name;
-    tr.querySelector(".price").value = data.price;
-    tr.querySelector(".change").value = data.change;
-
-    judgeRow(tr);
-    save();
   });
 
   board.appendChild(tr);
@@ -94,7 +115,9 @@ function addRow(data = {}) {
 async function fetchStock(symbol){
 
   try{
-    const url = `https://${API_HOST}/market/get-quotes?region=JP&symbols=${symbol}`;
+
+    const url =
+      `https://${API_HOST}/market/get-quotes?region=JP&symbols=${symbol}`;
 
     const res = await fetch(url,{
       headers:{
@@ -113,8 +136,8 @@ async function fetchStock(symbol){
       change: d.regularMarketChangePercent?.toFixed(2) || "-"
     };
 
-  }catch(e){
-    console.error(e);
+  }catch(err){
+    console.error(err);
     return null;
   }
 }
@@ -151,7 +174,9 @@ async function updateAllRows(){
 
 function judgeRow(row){
 
-  const change = parseFloat(row.querySelector(".change").value);
+  const change =
+    parseFloat(row.querySelector(".change").value);
+
   row.className = "";
 
   if(isNaN(change)){
@@ -179,7 +204,8 @@ function judgeRow(row){
 
 function save(){
 
-  const data = [...document.querySelectorAll("#board tr")]
+  const data =
+    [...document.querySelectorAll("#board tr")]
     .map(r=>({
       code: r.querySelector(".code").value,
       name: r.querySelector(".name").value,
@@ -187,7 +213,10 @@ function save(){
       change: r.querySelector(".change").value
     }));
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  localStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(data)
+  );
 }
 
 /* ===========================
@@ -196,6 +225,8 @@ function save(){
 
 function load(){
 
-  const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+  const saved =
+    JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
   saved.forEach(d => addRow(d));
 }
