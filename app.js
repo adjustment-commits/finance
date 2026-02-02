@@ -347,21 +347,13 @@ if(!data) continue;
 const power = judgeRocketPower(data.raw);
 const flow  = calcFlowScore(data.raw);
 
-if(power.label==="🚀+" && flow>=60){
+console.log(code, power.label, flow);
 
-result.push(
-`${code} | ${data.name} | ${data.price.toFixed(1)}円 | 🚀+ | FLOW:${flow}`
-);
-
+if(power.label!=="-" && flow>=20){
+  result.push(
+   `${code} | ${data.name} | ${data.price.toFixed(1)}円 | ${power.label} | FLOW:${flow}`
+  );
 }
-}
-
-if(result.length===0){
-rocketArea.textContent="該当なし";
-}else{
-rocketArea.textContent=result.join("\n");
-}
-
 }
 
 });
