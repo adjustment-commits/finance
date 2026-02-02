@@ -288,8 +288,7 @@ function calcStars(d,avgCandle,volTrend){
    SCANNER
 =========================== */
 
-const scanBtn=document.getElementById("scanBtn");
-const SCAN_RESULT_MODE="TOP50";
+const scanBtn = document.getElementById("scanBtn");
 
 scanBtn.onclick = async ()=>{
 
@@ -298,44 +297,50 @@ scanBtn.onclick = async ()=>{
   clearBoard();
 
   const quotes = await fetchQuotes(LOW_PRICE_LIST);
+
+  console.log("SCAN SOURCE:", quotes.length);
+
   const candidates=[];
 
   for(const d of quotes){
 
-    const avgVol = await fetchVolumeAverage(d.symbol);
-    d.spike = volumeSpike(d.regularMarketVolume,avgVol);
+    if(!d.regularMarketPrice) continue;
 
     if(scanMode==="short"){
       if(!(d.regularMarketPrice<=500 &&
            d.regularMarketChangePercent>=0.5 &&
-           d.spike>=0.8)) continue;
+           d.regularMarketVolume>=300000)) continue;
     }
 
-    const candles = await fetchCandles(d.symbol);
-const avgCandle = candleAverageScore(candles);
-const volT = volumeTrend(candles);
+    let score=0;
 
-// 土日・API欠損対策
-const safeVolT = volT || 1;
+    if(d.regularMarketChangePercent>=1) score++;
+    if(d.regularMarketChangePercent>=2) score++;
+    if(d.regularMarketVolume>=500000) score++;
+    if(d.regularMarketVolume>=1000000) score++;
 
-const stars = calcStars(d,avgCandle,safeVolT);
-     
     candidates.push({
       symbol:d.symbol,
-      score:stars.length
+      score
     });
   }
 
   candidates.sort((a,b)=>b.score-a.score);
-  const result = candidates.slice(0,50);
+
+  const result=candidates.slice(0,50);
 
   result.forEach(r=>insertSymbolToBoard(r.symbol));
-  localStorage.setItem("adj_last_scan_symbols",
+
+  localStorage.setItem(
+    "adj_last_scan_symbols",
     JSON.stringify(result.map(r=>r.symbol))
   );
 
   refresh();
-  scanStatus.textContent="完了";
+
+  scanStatus.textContent=
+    `完了（${result.length}件 / 元データ${quotes.length}件）`;
+
   scanBtn.disabled=false;
 };
 
