@@ -75,6 +75,7 @@ const LOW_PRICE_LIST = [
 "9466.T","9514.T","9535.T","9557.T","9563.T","9610.T","9704.T","9760.T","9812.T","9816.T",
 "9854.T","9876.T","9885.T","9904.T","9930.T","9969.T","9972.T","9973.T","9978.T","9980.T"
 ];
+
 /* ===========================
    INIT
 =========================== */
@@ -115,9 +116,10 @@ function addRow(data={}){
     <td><input class="price" value="${data.price||""}" disabled></td>
     <td><input class="change" value="${data.change||""}" disabled></td>
     <td class="status">-</td>
-    <td class="power">-</td>
-    <td><button class="delBtn">✖</button></td>
-  `;
+<td class="power">-</td>
+<td class="flow">0</td>
+<td><button class="delBtn">✖</button></td>
+`;
 
   tr.querySelector(".delBtn").onclick=()=>{
     tr.remove();
@@ -135,11 +137,13 @@ if(!data){
 }
 
 const power = judgeRocketPower(data.raw);
+const flow = calcFlowScore(data.raw);
 
 tr.querySelector(".name").value = data.name;
 tr.querySelector(".price").value = data.price.toFixed(2);
 tr.querySelector(".change").value = data.change.toFixed(2);
 tr.querySelector(".power").textContent = power.label;
+tr.querySelector(".flow").textContent = flow;
 
 judgeRow(tr);
 save();
@@ -200,11 +204,13 @@ async function updateAllRows(){
     if(!data) continue;
 
     const power = judgeRocketPower(data.raw);
+const flow  = calcFlowScore(data.raw);
 
 row.querySelector(".name").value = data.name;
 row.querySelector(".price").value = data.price.toFixed(2);
 row.querySelector(".change").value = data.change.toFixed(2);
 row.querySelector(".power").textContent = power.label;
+     row.querySelector(".flow").textContent = flow;
 
 judgeRow(row);
   }
@@ -252,7 +258,8 @@ function save(){
   name:r.querySelector(".name").value,
   price:r.querySelector(".price").value,
   change:r.querySelector(".change").value,
-  power:r.querySelector(".power").textContent
+power:r.querySelector(".power").textContent,
+flow:r.querySelector(".flow").textContent
 }));
    
   localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
@@ -266,6 +273,9 @@ function load(){
   if(d.power){
     row.querySelector(".power").textContent = d.power;
   }
+if(d.flow){
+  row.querySelector(".flow").textContent = d.flow;
+}
 });
 }
 
@@ -345,19 +355,27 @@ results.sort((a,b)=>b.change-a.change);
 const top50 = results.slice(0,50);
 
 // === 表に流し込む ===
-top50.forEach(r=>{
+top50.forEach(async r=>{
 
-    const row = addRow({
-      code: r.symbol,
-      name: r.name,
-      price: r.price,
-      change: r.change
-    });
-
-    judgeRow(row);
-
+  const row = addRow({
+    code: r.symbol
   });
 
+  const data = await fetchStock(r.symbol);
+  if(!data) return;
+
+  const power = judgeRocketPower(data.raw);
+  const flow  = calcFlowScore(data.raw);
+
+  row.querySelector(".name").value = data.name;
+  row.querySelector(".price").value = data.price.toFixed(2);
+  row.querySelector(".change").value = data.change.toFixed(2);
+  row.querySelector(".power").textContent = power.label;
+  row.querySelector(".flow").textContent = flow;
+
+  judgeRow(row);
+});
+   
   save();
 
  rocketArea.textContent =
@@ -439,6 +457,47 @@ function judgeRocketPower(d){
   else if(score===2) label="🚀±";
 
   return {label, score, reasons};
+}
+
+/* ===========================
+   FLOW SCORE
+=========================== */
+
+function calcFlowScore(d){
+
+  if(!d) return 0;
+
+  const price = d.regularMarketPrice;
+  const high  = d.regularMarketDayHigh;
+  const low   = d.regularMarketDayLow;
+  const vol   = d.regularMarketVolume;
+  const chg   = d.regularMarketChangePercent;
+
+  if(price==null || high==null || low==null || vol==null || chg==null){
+    return 0;
+  }
+
+  let score = 0;
+
+  /* ① 出来高 */
+  if(vol >= 1000000) score += 10;
+  if(vol >= 2000000) score += 10;
+  if(vol >= 4000000) score += 10;
+
+  /* ② 終値ポジション */
+  const pos = (price - low) / (high - low);
+  if(pos >= 0.6) score += 10;
+  if(pos >= 0.8) score += 15;
+
+  /* ③ 変化率 */
+  if(chg >= 1) score += 10;
+  if(chg >= 3) score += 8;
+  if(chg >= 6) score += 7;
+
+  /* ④ 高値更新 */
+  if(price >= high * 0.99) score += 20;
+
+  return score;
 }
    
 });
