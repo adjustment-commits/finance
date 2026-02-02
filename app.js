@@ -354,6 +354,17 @@ if(power.label!=="-" && flow>=20){
    `${code} | ${data.name} | ${data.price.toFixed(1)}円 | ${power.label} | FLOW:${flow}`
   );
 }
+
+// API負荷軽減
+await new Promise(r=>setTimeout(r,150));
+
 }
 
+if(result.length===0){
+  rocketArea.textContent="該当なし";
+}else{
+  rocketArea.textContent=result.join("\n");
+}
+
+}
 });
