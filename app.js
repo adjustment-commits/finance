@@ -140,6 +140,7 @@ function addRow(data={}){
   });
 
   board.appendChild(tr);
+return tr;
 }
 
 /* ===========================
@@ -338,27 +339,25 @@ rocketBtn.onclick = async ()=>{
    ROCKET CLICK → ADD ROW
 =========================== */
 
-rocketArea.addEventListener("click",(e)=>{
+rocketArea.addEventListener("click", async (e)=>{
 
-  if(!e.target.classList.contains("rocketItem")) return;
+  const item = e.target.closest(".rocketItem");
+  if(!item) return;
 
-  const symbol = e.target.dataset.symbol;
+  const symbol = item.dataset.symbol;
 
-  addRow({ code: symbol });
+  // 行を追加
+  const row = addRow({ code: symbol });
+
+  // すぐ株価取得
+  const data = await fetchStock(symbol);
+  if(!data) return;
+
+  row.querySelector(".name").value = data.name;
+  row.querySelector(".price").value = data.price;
+  row.querySelector(".change").value = data.change;
+
+  judgeRow(row);
   save();
 
-});
-
-/* ===========================
-   ROCKET CLICK → ADD ROW
-=========================== */
-
-rocketArea.addEventListener("click",(e)=>{
-
-  if(!e.target.classList.contains("rocketItem")) return;
-
-  const symbol = e.target.dataset.symbol;
-
-  addRow({ code: symbol });
-  save();
 });
